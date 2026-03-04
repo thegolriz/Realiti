@@ -1,0 +1,19 @@
+services:
+  api:
+    container_name: bailee_ann_dev_backend
+    build:
+      context: ./backend
+    env_file: ./.env_dev
+  db_mock:
+    image: postgres:17
+    container_name: mock_db_baileeann
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB} 
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "55433:5432"
+    tmpfs: /var/lib/postgresql/data
+
+volumes: 
+  postgres_data:

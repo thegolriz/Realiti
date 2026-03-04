@@ -1,0 +1,29 @@
+# Operating System Files
+.DS_Store         # macOS specific
+Thumbs.db         # Windows specific
+
+# Node.js
+node_modules/
+
+# IDE and editor files
+.vscode/           # Visual Studio Code
+.idea/             # JetBrains (IntelliJ, PyCharm, etc.)
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env_dev
+# Build outputs
+/dist
+/build
+
+# Temporary files
+*.tmp
+
+#important files to hide
+instance/
+__pycache__/
