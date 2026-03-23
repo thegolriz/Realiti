@@ -16,15 +16,3 @@ def get_users():
     users = User.query.all()
     users_list = [{"id": user.id, "email": user.email} for user in users]
     return jsonify(users_list)
-
-
-@routes.route("/notes", methods=["GET"])
-@jwt_required()
-def get_user_notes():
-    user_id = get_jwt_identity()
-    notes = Note.query.filter_by(user_id=user_id).all()
-    notes_list = [
-        {"id": note.id, "data": note.data, "date": note.date.isoformat()}
-        for note in notes
-    ]
-    return jsonify(notes_list)
