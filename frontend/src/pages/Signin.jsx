@@ -114,7 +114,7 @@ export default function SignIn(props) {
       setPasswordError(false);
       setPasswordErrorMessage('');
     }
-    if (isValid) {
+    if (!isValid) {
       navigate('/dashboard');
     }
     return isValid;
