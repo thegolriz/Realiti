@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -58,8 +59,9 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     }),
   },
 }));
-
 export default function SignIn(props) {
+
+  const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
@@ -86,6 +88,9 @@ export default function SignIn(props) {
     });
   };
 
+  // const navigateToDash = () =>{
+  //     return ();
+  // }
   const validateInputs = () => {
     const email = document.getElementById('email');
     const password = document.getElementById('password');
@@ -109,7 +114,9 @@ export default function SignIn(props) {
       setPasswordError(false);
       setPasswordErrorMessage('');
     }
-
+    if (isValid) {
+      navigate('/dashboard');
+    }
     return isValid;
   };
 
@@ -184,21 +191,23 @@ export default function SignIn(props) {
             >
               Sign in
             </Button>
-            <Link
-              component="button"
-              type="button"
-              onClick={handleClickOpen}
-              variant="body2"
-              sx={{ alignSelf: 'center' }}
-            >
-              Forgot your password?
-            </Link>
+            {/* <Link */}
+            {/*   component="button" */}
+            {/*   type="button" */}
+            {/*   onClick={handleClickOpen} */}
+            {/*   variant="body2" */}
+            {/*   href="/dashboard" */}
+            {/*   sx={{ alignSelf: 'center' }} */}
+            {/* > */}
+            {/*   Forgot your password? */}
+            {/* </Link> */}
           </Box>
           <Divider>or</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography sx={{ textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
               <Link
+                href="/signup"
                 variant="body2"
                 sx={{ alignSelf: 'center' }}
               >
