@@ -1,4 +1,5 @@
 import { TextField, Box, Input } from '@mui/material';
+import PostButton from '../components/PostButton.jsx';
 
 export default function Post() {
   return (
@@ -8,6 +9,7 @@ export default function Post() {
       flexDirection: 'column',
       height: '100vh',
       justifyContent: 'center',
+      gap: 4,
     }}>
       <Box>
         <TextField id="outlined-basic" label="Describe your expierence" fullWidth multiline variant="outlined" sx={{
@@ -19,7 +21,9 @@ export default function Post() {
           Upload an image/file to support your post
         </Input>
       </Box>
-      <Box>Post button here</Box>
+      <Box><PostButton
+        text="Post"
+        to="/Dashboard" /></Box>
     </Box>
   );
 };

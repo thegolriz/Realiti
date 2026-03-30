@@ -20,3 +20,12 @@ class User(db.Model):
     password = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(tz=timezone.utc))
     is_admin = db.Column(db.Boolean, default=False)
+
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    # make sure to change to false once s3 is fully set up
+    s3_url = db.Column(db.String, nullable=True)
+    posted_at = db.Column(db.DateTime, default=datetime.now(tz=timezone.utc))

@@ -76,10 +76,13 @@ def logout_api():
 @auth_routes.route("/signup", methods=["POST"])
 def signup_api():
     data = request.get_json()
+    print("can you see me")
+    print(data)
     email = data.get("email")
-    first_name = data.get("firstName")
-    last_name = data.get("lastName")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
     password = data.get("password")
+    print(email, first_name, last_name, password)
 
     if not email or not first_name or not last_name or not password:
         return jsonify({"error": "Missing required data fields"}), 409
@@ -92,7 +95,8 @@ def signup_api():
         return jsonify({"error": "email in use"}), 409
     else:
         # red underline is lsp error, code works fine so far
-        password = generate_password_hash(password, method="scrypt", salt_length=16)
+        password = generate_password_hash(
+            password, method="scrypt", salt_length=16)
         print(password)
         new_user = User(
             email=email, password=password, first_name=first_name, last_name=last_name
