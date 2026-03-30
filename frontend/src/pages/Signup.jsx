@@ -11,6 +11,7 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
+import { signup } from "../api/api.js";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -63,12 +64,15 @@ export default function SignUp(props) {
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
 
   const validateInputs = () => {
+    console.log("clikc");
     const email = document.getElementById('email');
     const password = document.getElementById('password');
-    const name = document.getElementById('name');
+    const first_name = document.getElementById('first_name');
+    const last_name = document.getElementById('last_name');
 
     let isValid = true;
 
+    console.log("this is what isValid is ", isValid)
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
       setEmailErrorMessage('Please enter a valid email address.');
@@ -78,16 +82,16 @@ export default function SignUp(props) {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password.value || password.value.length < 8) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
+      setPasswordErrorMessage('Password must be at least 8 characters long.');
       isValid = false;
     } else {
       setPasswordError(false);
       setPasswordErrorMessage('');
     }
 
-    if (!name.value || name.value.length < 1) {
+    if (!first_name.value || first_name.value.length < 1) {
       setNameError(true);
       setNameErrorMessage('Name is required.');
       isValid = false;
@@ -95,22 +99,44 @@ export default function SignUp(props) {
       setNameError(false);
       setNameErrorMessage('');
     }
+    if (!last_name.value || last_name.value.length < 1) {
+      setNameError(true);
+      setNameErrorMessage('Name is required.');
+      isValid = false;
+    } else {
+      setNameError(false);
+      setNameErrorMessage('');
+    }
+    console.log("this is what isValid is ", isValid)
 
     return isValid;
   };
 
   const handleSubmit = (event) => {
+    console.log("here");
+    event.preventDefault();
     if (nameError || emailError || passwordError) {
-      event.preventDefault();
       return;
     }
     const data = new FormData(event.currentTarget);
     console.log({
-      name: data.get('name'),
-      lastName: data.get('lastName'),
+      first_name: data.get('first_name'),
+      last_name: data.get('last_name'),
       email: data.get('email'),
       password: data.get('password'),
     });
+    signup({
+      first_name: data.get('first_name'),
+      last_name: data.get('last_name'),
+      email: data.get('email'),
+      password: data.get('password'),
+    })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   return (
@@ -132,14 +158,29 @@ export default function SignUp(props) {
             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
             <FormControl>
-              <FormLabel htmlFor="name">Full name</FormLabel>
+              <FormLabel htmlFor="name">First name</FormLabel>
               <TextField
                 autoComplete="name"
-                name="name"
+                name="first_name"
                 required
                 fullWidth
-                id="name"
-                placeholder="Jon Snow"
+                id="first_name"
+                placeholder="Jon"
+                error={nameError}
+                helperText={nameErrorMessage}
+                color={nameError ? 'error' : 'primary'}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel htmlFor="name">last name</FormLabel>
+              <TextField
+                autoComplete="name"
+                name="last_name"
+                required
+                fullWidth
+                id="last_name"
+                placeholder="Snow"
                 error={nameError}
                 helperText={nameErrorMessage}
                 color={nameError ? 'error' : 'primary'}

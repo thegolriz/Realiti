@@ -1,5 +1,6 @@
 import { TextField, Box, Input } from '@mui/material';
 import PostButton from '../components/PostButton.jsx';
+import { createPost } from '../api/api.js';
 
 export default function Post() {
   return (

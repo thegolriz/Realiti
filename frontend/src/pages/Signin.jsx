@@ -17,6 +17,7 @@ import { styled } from '@mui/material/styles';
 // import ForgotPassword from './components/ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
+import { login } from '../api/api.js';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -77,8 +78,8 @@ export default function SignIn(props) {
   };
 
   const handleSubmit = (event) => {
+    event.preventDefault();
     if (emailError || passwordError) {
-      event.preventDefault();
       return;
     }
     const data = new FormData(event.currentTarget);
@@ -86,6 +87,16 @@ export default function SignIn(props) {
       email: data.get('email'),
       password: data.get('password'),
     });
+    login({
+      email: data.get("email"),
+      password: data.get("password"),
+    })
+      .then((response) => {
+        console.log(response.data)
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   // const navigateToDash = () =>{
@@ -188,6 +199,7 @@ export default function SignIn(props) {
               fullWidth
               variant="contained"
               onClick={validateInputs}
+              href="/dashboard"
             >
               Sign in
             </Button>
