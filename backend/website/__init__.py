@@ -39,10 +39,11 @@ def create_app():
     from website.api.auth_routes import auth_routes  # noqa: F401
     from website.api.routes import routes  # noqa: F401
     from website.api.postRoutes import postRoutes  # noqa: F401
-
+    from website.api.s3Routes import s3Routes
     app.register_blueprint(routes, url_prefix="/api")
     app.register_blueprint(auth_routes, url_prefix="/api")
     app.register_blueprint(postRoutes, url_prefix="/api")
+    app.register_blueprint(s3Routes, url_prefix="/api")
     from .models import Note, User, Post  # noqa: F401
 
     return app
