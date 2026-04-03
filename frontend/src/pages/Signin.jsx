@@ -93,6 +93,7 @@ export default function SignIn(props) {
     })
       .then((response) => {
         console.log(response.data)
+        localStorage.setItem('token', response.data.access_token)
       })
       .catch((err) => {
         console.error(err);

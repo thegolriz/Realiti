@@ -7,6 +7,7 @@ const PostButton = props => {
     <>
       <Button
         startIcon={iconStart}
+        type="submit"
         endIcon={iconEnd}
         component={to ? RouterLink : 'button'}
         to={to}
