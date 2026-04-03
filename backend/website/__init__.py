@@ -38,9 +38,11 @@ def create_app():
          "https://yourfuturefrontend.com"])
     from website.api.auth_routes import auth_routes  # noqa: F401
     from website.api.routes import routes  # noqa: F401
+    from website.api.postRoutes import postRoutes  # noqa: F401
 
     app.register_blueprint(routes, url_prefix="/api")
     app.register_blueprint(auth_routes, url_prefix="/api")
-    from .models import Note, User  # noqa: F401
+    app.register_blueprint(postRoutes, url_prefix="/api")
+    from .models import Note, User, Post  # noqa: F401
 
     return app
