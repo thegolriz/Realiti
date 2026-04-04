@@ -1,4 +1,4 @@
-import { TextField, Box, Input, FormControl } from '@mui/material';
+import { TextField, Box, Input } from '@mui/material';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';

@@ -1,8 +1,9 @@
 from website import db
-from website.models import User, Post
+import urllib.parse
+from website.models import Post
 from flask_jwt_extended import (get_jwt_identity, jwt_required)
 from flask import Blueprint, jsonify, request
-
+from .moderationRoute import moderation_check
 postRoutes = Blueprint("postRoutes", __name__)
 
 
@@ -19,9 +20,13 @@ def post_api():
     description = data["description"]
     document = data["document"]
     user_id = get_jwt_identity()
-    new_post = Post(
-        user_id=user_id, description=description, s3_url=document
-    )
-    db.session.add(new_post)
-    db.session.commit()
-    return jsonify({"message": "Post created"}), 200
+    s3_obj = urllib.parse.unquote(document.split('/')[-1])
+    passed = moderation_check(s3_obj)
+    if (passed):
+        new_post = Post(
+            user_id=user_id, description=description, s3_url=document
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        return jsonify({"message": "Post created"}), 200
+    return jsonify({"error": "This post contains inappropriate content"}), 400

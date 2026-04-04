@@ -45,7 +45,6 @@ def create_presigned_url(
 @s3Routes.route("/upload", methods=["POST"])
 @jwt_required()
 def s3_api():
-    print("herer")
     s3_bucket = os.getenv("S3_BUCKET")
     s3_region = os.getenv("S3_REGION")
     data = request.get_json()
@@ -55,7 +54,8 @@ def s3_api():
         return jsonify({"error": "docuemnt has no name"}), 400
     filename = data["filename"]
     user_id = get_jwt_identity()
-    fileId = user_id+'_' + datetime.datetime.now().isoformat() + '_' + filename
+    fileId = str(user_id)+'_' + \
+        datetime.datetime.now().isoformat() + '_' + filename
     url = create_presigned_url(s3_bucket, fileId, s3_region)
     if url is None:
         return jsonify({"error": "Failed to create s3 url"}), 400
