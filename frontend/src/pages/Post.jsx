@@ -1,7 +1,8 @@
 import { TextField, Box, Input, FormControl } from '@mui/material';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
-import { createPost } from '../api/api.js';
+import { createPost, upload } from '../api/api.js';
+import axios from "axios";
 
 export default function Post() {
   const [descriptionError, setDescriptionError] = React.useState(false);
@@ -40,16 +41,28 @@ export default function Post() {
       description: data.get('description'),
       document: data.get('document')
     });
-    createPost(
-      { description: data.get('description'), document: data.get('document') },
-      localStorage.getItem('token')
+    console.log(localStorage.getItem('token'))
+    upload(
+      { filename: data.get('document').name, }, localStorage.getItem('token')
     )
       .then((response) => {
         console.log(response.data);
+        const presignedUrl = response.data.s3_url;
+        const cleanUrl = presignedUrl.split('?')[0];
+        return axios.put(presignedUrl, data.get('document'))
+          .then(() => {
+            return createPost(
+              { description: data.get('description'), document: cleanUrl },
+              localStorage.getItem('token')
+            );
+          })
+          .then((response) => {
+            console.log(response.data);
+          });
       })
-      .catch((err) => {
+      .catch((err => {
         console.error(err);
-      });
+      }));
   };
   return (
     <Box
@@ -64,12 +77,12 @@ export default function Post() {
         gap: 4,
       }}>
       <Box>
-        <TextField id="description" label="Describe your expierence" fullWidth multiline variant="outlined" sx={{
+        <TextField name="description" id="description" label="Describe your expierence" fullWidth multiline variant="outlined" sx={{
           width: '50vw',
         }} />
       </Box>
       <Box>
-        <Input id="document" type='file'>
+        <Input name="document" id="document" type='file'>
           Upload an image/file to support your post
         </Input>
       </Box>

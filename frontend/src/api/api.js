@@ -6,6 +6,9 @@ const api = axios.create({
 });
 export const signup = (data) => api.post('/signup', data);
 export const login = (data) => api.post('/login', data);
+export const upload = (data, token) => api.post('/upload', data, {
+  headers: { Authorization: `Bearer ${token}` }
+});
 export const createPost = (data, token) => api.post('/post', data, {
   headers: { Authorization: `Bearer ${token}` }
 });
