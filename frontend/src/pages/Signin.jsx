@@ -94,6 +94,9 @@ export default function SignIn(props) {
       .then((response) => {
         console.log(response.data)
         localStorage.setItem('token', response.data.access_token)
+        console.log(localStorage.getItem('token'))
+
+
       })
       .catch((err) => {
         console.error(err);
@@ -200,7 +203,7 @@ export default function SignIn(props) {
               fullWidth
               variant="contained"
               onClick={validateInputs}
-              href="/dashboard"
+            // href="/dashboard"
             >
               Sign in
             </Button>
