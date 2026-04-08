@@ -1,70 +1,56 @@
-# Getting Started with Create React App
+# Realiti Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React + Material UI frontend for the Realiti platform.
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### `npm start`
+Runs on `http://localhost:3000`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Pages
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Sign In | User login with JWT auth |
+| `/signup` | Sign Up | Account registration |
+| `/post` | Create Post | Submit a post with description and optional file upload |
+| `/dashboard` | Dashboard | Post feed (in progress) |
 
-### `npm test`
+## API Integration
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+All API calls are centralized in `src/api/api.js` using Axios. The base URL points to the Flask backend at `http://localhost:5001/api`.
 
-### `npm run build`
+Available functions:
+- `signup(data)` — Register a new account
+- `login(data)` — Login and receive JWT tokens
+- `upload(data, token)` — Get a presigned S3 URL for file upload
+- `createPost(data, token)` — Create a post with description and S3 URL
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Post Submission Flow
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. User fills in description and selects a file
+2. Frontend requests a presigned URL from the backend
+3. File is uploaded directly to S3 via PUT request
+4. Clean S3 URL (without query params) is sent with the post data to the backend
+5. Backend runs moderation check before saving
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Project Structure
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+frontend/src/
+├── api/
+│   └── api.js              # Axios instance and API functions
+├── components/
+│   └── PostButton.jsx      # Reusable post button
+├── pages/
+│   ├── Signin.jsx          # Login page
+│   ├── Signup.jsx          # Registration page
+│   ├── Post.jsx            # Post creation page
+│   └── Dashboard.jsx       # Post feed (in progress)
+└── shared-theme/           # MUI theme customizations
+```
