@@ -13,12 +13,11 @@ from website.models import User
 auth_routes = Blueprint("auth_routes", __name__)
 
 
-# the login api is down below
 @auth_routes.route("/login", methods=["POST"])
 def login_api():
     data = request.get_json()
     if not data or "email" not in data or "password" not in data:
-        return jsonify({"error": "Missing email and/or password"}), 409
+        return jsonify({"error": "Missing email and/or password"}), 400
     email = data["email"]
     password = data["password"]
 
@@ -38,69 +37,54 @@ def login_api():
             200,
         )
     else:
-        return jsonify({"error": "Invalid email or password"}), 401
+        return jsonify({"error": "Invalid email or password"}), 400
 
 
-# the protected login using jwt is below
 @auth_routes.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
-    print("Received Headers:")
-    auth_header = request.headers.get("Authorization")
-    print(f"Received Authorization Header: {auth_header}")
     user_id = get_jwt_identity()
-    print(f"Extracted user ID from JWT: {user_id}")
     user = User.query.get(user_id)
-
     if not user:
-        return jsonify({"error": "user not found"}), 401
+        return jsonify({"error": "user not found"}), 404
     return jsonify({"message": f"Hello user {user.email}!"}), 200
 
 
-# token refresh is below
 @auth_routes.route("/refresh", methods=["POST"])
-@jwt_required(refresh=True)  # requries existing token
+@jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
     new_token = create_access_token(identity=user_id)
     return jsonify(access_token=new_token), 200
 
 
-# logout is below
 @auth_routes.route("/logout", methods=["DELETE", "POST"])
 def logout_api():
     return jsonify({"message": "Logout endpoint"}), 200
 
 
-# signup is below
 @auth_routes.route("/signup", methods=["POST"])
 def signup_api():
     data = request.get_json()
-    print("can you see me")
-    print(data)
+    if not data or "email" not in data or "first_name" not in data or "last_name" not in data or "password" not in data:
+        return jsonify({"error": "Missing required fields"}), 400
+
     email = data.get("email")
     first_name = data.get("first_name")
     last_name = data.get("last_name")
     password = data.get("password")
-    print(email, first_name, last_name, password)
-
-    if not email or not first_name or not last_name or not password:
-        return jsonify({"error": "Missing required data fields"}), 409
 
     if len(password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters long"}), 409
+        return jsonify({"error": "Password must be at least 8 characters long"}), 400
 
     existing = User.query.filter_by(email=email).first()
     if existing:
-        return jsonify({"error": "email in use"}), 409
-    else:
-        # red underline is lsp error, code works fine so far
-        password = generate_password_hash(
-            password, method="scrypt", salt_length=16)
-        print(password)
-        new_user = User(
-            email=email, password=password, first_name=first_name, last_name=last_name
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        return jsonify({"message": "account created"}), 200
+        return jsonify({"error": "email in use"}), 400
+    password = generate_password_hash(
+        password, method="scrypt", salt_length=16)
+    new_user = User(
+        email=email, password=password, first_name=first_name, last_name=last_name
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "account created"}), 201
