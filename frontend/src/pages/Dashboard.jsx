@@ -1,8 +1,15 @@
-import Box from '@mui/material/Box'
-function Dashboard() {
+import NavBar from '../components/NavBar.jsx'
+import { Box, Stack } from '@mui/material'
+import PostCard from '../components/PostCard.jsx'
+const Dashboard = () => {
   return (
     <Box>
-      found me
+      <NavBar />
+      <Stack direction='column' sx={{ mt: 9, alignItems: 'center', }}>
+        <Box sx={{ width: '50%' }}>
+          <PostCard />
+        </Box>
+      </Stack>
     </Box>
   )
 }
