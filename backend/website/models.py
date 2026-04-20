@@ -5,13 +5,6 @@ from sqlalchemy import func
 from . import db  # same as putting what folder we are currently in
 
 
-class Note(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.String(10000))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.Text, nullable=False)
@@ -24,8 +17,9 @@ class User(db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user = db.relationship('User', backref='posts')
+    title = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    # make sure to change to false once s3 is fully set up
     s3_url = db.Column(db.String, nullable=True)
     posted_at = db.Column(db.DateTime, default=datetime.now(tz=timezone.utc))

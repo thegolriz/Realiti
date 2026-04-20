@@ -30,3 +30,17 @@ def post_api():
         db.session.commit()
         return jsonify({"message": "Post created"}), 200
     return jsonify({"error": "This post contains inappropriate content"}), 400
+
+
+@postRoutes.route("/post", methods=["GET"])
+def post_get_api():
+    postInfo = Post.query.all()
+    postList = []
+    for post in postInfo:
+        postList.append({
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "name": post.user.first_name
+        })
+    return jsonify(postList)

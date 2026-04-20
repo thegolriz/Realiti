@@ -2,6 +2,9 @@ import { Box, Typography, Avatar, Stack } from '@mui/material'
 
 const PostCard = props => {
   const { postTitle, profilePic, userName, postBody } = props
+  const longText = `Here is a generic post body which will be reaplced with user genereated text\n
+                  One could assume that the text body has latin like other text bodies but \n
+                  I have opted to do this instead.`
   return (
     <>
       <Box
@@ -26,7 +29,7 @@ const PostCard = props => {
               {userName ?? 'username'}
             </Typography>
             <Typography>
-              Here is where the post body will go
+              {postBody ?? longText}
             </Typography>
           </Box>
         </Stack>
