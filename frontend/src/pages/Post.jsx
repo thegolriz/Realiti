@@ -1,8 +1,8 @@
-import { TextField, Box, Input } from '@mui/material';
+import { TextField, Box, Input, FormControl, FormHelperText } from '@mui/material';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
-import axios from "axios";
+import axios from 'axios';
 
 export default function Post() {
   const [descriptionError, setDescriptionError] = React.useState(false);
@@ -16,7 +16,7 @@ export default function Post() {
     let isValid = true;
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
-      setDescriptionErrorMessage('Please enter an accurate description about your expierence')
+      setDescriptionErrorMessage('Please enter an accurate description about your experience');
       isValid = false;
     } else {
       setDescriptionError(false);
@@ -24,46 +24,39 @@ export default function Post() {
     }
     if (!documents.value) {
       setDocumentError(true);
-      setDocumentErrorMessage('Please provide an image or supporting document for your post')
+      setDocumentErrorMessage('Please provide an image or supporting document for your post');
+      isValid = false;
     } else {
       setDocumentError(false);
       setDocumentErrorMessage('');
     }
     return isValid;
-  }
-  const handleSubmit = (event) => {
+  };
+
+  const handleSubmit = event => {
     event.preventDefault();
-    if (descriptionError || documentError) {
+    if (!validateInputs()) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      description: data.get('description'),
-      document: data.get('document')
-    });
-    console.log(localStorage.getItem('token'))
-    upload(
-      { filename: data.get('document').name, }, localStorage.getItem('token')
-    )
-      .then((response) => {
-        console.log(response.data);
+    upload({ filename: data.get('document').name }, localStorage.getItem('token'))
+      .then(response => {
         const presignedUrl = response.data.s3_url;
         const cleanUrl = presignedUrl.split('?')[0];
-        return axios.put(presignedUrl, data.get('document'))
-          .then(() => {
-            return createPost(
+        return axios
+          .put(presignedUrl, data.get('document'))
+          .then(() =>
+            createPost(
               { description: data.get('description'), document: cleanUrl },
               localStorage.getItem('token')
-            );
-          })
-          .then((response) => {
-            console.log(response.data);
-          });
+            )
+          );
       })
-      .catch((err => {
+      .catch(err => {
         console.error(err);
-      }));
+      });
   };
+
   return (
     <Box
       onSubmit={handleSubmit}
@@ -75,21 +68,30 @@ export default function Post() {
         height: '100vh',
         justifyContent: 'center',
         gap: 4,
-      }}>
+      }}
+    >
       <Box>
-        <TextField name="description" id="description" label="Describe your expierence" fullWidth multiline variant="outlined" sx={{
-          width: '50vw',
-        }} />
+        <TextField
+          name="description"
+          id="description"
+          label="Describe your experience"
+          fullWidth
+          multiline
+          variant="outlined"
+          error={descriptionError}
+          helperText={descriptionErrorMessage}
+          sx={{ width: '50vw' }}
+        />
       </Box>
       <Box>
-        <Input name="document" id="document" type='file'>
-          Upload an image/file to support your post
-        </Input>
+        <FormControl error={documentError}>
+          <Input name="document" id="document" type="file" />
+          {documentError && <FormHelperText>{documentErrorMessage}</FormHelperText>}
+        </FormControl>
       </Box>
-      <Box><PostButton
-        text="Post"
-        onClick={validateInputs}
-      /></Box>
+      <Box>
+        <PostButton text="Post" />
+      </Box>
     </Box>
   );
-};
+}

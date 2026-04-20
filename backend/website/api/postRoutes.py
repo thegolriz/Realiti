@@ -43,4 +43,5 @@ def post_get_api():
             "description": post.description,
             "name": post.user.first_name
         })
+    print("posts are ", postList)
     return jsonify(postList)

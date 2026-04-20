@@ -2,7 +2,7 @@ import NavBar from '../components/NavBar.jsx'
 import { Box, Stack } from '@mui/material'
 import PostCard from '../components/PostCard.jsx'
 import { useState, useEffect } from 'react'
-import axios from 'axios';
+import api from '../api/api.js';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true)
@@ -11,7 +11,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const { data: response } = await axios.get('/post')
+        const { data: response } = await api.get('/post')
         setPosts(response)
       } catch (error) {
         console.error(error.message)
@@ -21,14 +21,21 @@ const Dashboard = () => {
     fetchData()
   }, [])
   console.log("Posts here\n", posts)
+  const listPosts = posts.map(data =>
+    <PostCard
+      postTitle={data.title}
+      key={data.id}
+      userName={data.name}
+      postBody={data.description}
+    />)
   return (
     <Box>
       <NavBar />
-      <Stack direction='column' sx={{ mt: 9, alignItems: 'center', }}>
-        <Box sx={{ width: '50%' }}>
-          <PostCard />
-        </Box>
-      </Stack>
+      <Box sx={{ width: '50%', margin: '0 auto' }}>
+        <Stack spacing={1} direction='column' sx={{ mt: 9, alignItems: 'center', }}>
+          {listPosts}
+        </Stack>
+      </Box>
     </Box>
   )
 }
