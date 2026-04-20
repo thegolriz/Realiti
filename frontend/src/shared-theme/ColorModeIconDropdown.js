@@ -11,13 +11,13 @@ export default function ColorModeIconDropdown(props) {
   const { mode, systemMode, setMode } = useColorScheme();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = event => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleMode = (targetMode) => () => {
+  const handleMode = targetMode => () => {
     setMode(targetMode);
     handleClose();
   };
@@ -25,7 +25,7 @@ export default function ColorModeIconDropdown(props) {
     return (
       <Box
         data-screenshot="toggle-mode"
-        sx={(theme) => ({
+        sx={theme => ({
           verticalAlign: 'bottom',
           display: 'inline-flex',
           width: '2.25rem',

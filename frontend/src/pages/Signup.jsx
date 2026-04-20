@@ -11,7 +11,7 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
-import { signup } from "../api/api.js";
+import { signup } from '../api/api.js';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -45,12 +45,10 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
     position: 'absolute',
     zIndex: -1,
     inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+    backgroundImage: 'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
     backgroundRepeat: 'no-repeat',
     ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+      backgroundImage: 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
     }),
   },
 }));
@@ -64,7 +62,7 @@ export default function SignUp(props) {
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
 
   const validateInputs = () => {
-    console.log("clikc");
+    console.log('clikc');
     const email = document.getElementById('email');
     const password = document.getElementById('password');
     const first_name = document.getElementById('first_name');
@@ -72,7 +70,7 @@ export default function SignUp(props) {
 
     let isValid = true;
 
-    console.log("this is what isValid is ", isValid)
+    console.log('this is what isValid is ', isValid);
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
       setEmailErrorMessage('Please enter a valid email address.');
@@ -107,13 +105,13 @@ export default function SignUp(props) {
       setNameError(false);
       setNameErrorMessage('');
     }
-    console.log("this is what isValid is ", isValid)
+    console.log('this is what isValid is ', isValid);
 
     return isValid;
   };
 
-  const handleSubmit = (event) => {
-    console.log("here");
+  const handleSubmit = event => {
+    console.log('here');
     event.preventDefault();
     if (nameError || emailError || passwordError) {
       return;
@@ -131,10 +129,10 @@ export default function SignUp(props) {
       email: data.get('email'),
       password: data.get('password'),
     })
-      .then((response) => {
+      .then(response => {
         console.log(response.data);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   };
@@ -217,12 +215,7 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+            <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
               Sign up
             </Button>
           </Box>

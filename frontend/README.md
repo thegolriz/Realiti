@@ -14,18 +14,19 @@ Runs on `http://localhost:3000`.
 
 ## Pages
 
-| Route | Page | Description |
-|-------|------|-------------|
-| `/` | Sign In | User login with JWT auth |
-| `/signup` | Sign Up | Account registration |
-| `/post` | Create Post | Submit a post with description and optional file upload |
-| `/dashboard` | Dashboard | Post feed (in progress) |
+| Route        | Page        | Description                                             |
+| ------------ | ----------- | ------------------------------------------------------- |
+| `/`          | Sign In     | User login with JWT auth                                |
+| `/signup`    | Sign Up     | Account registration                                    |
+| `/post`      | Create Post | Submit a post with description and optional file upload |
+| `/dashboard` | Dashboard   | Post feed (in progress)                                 |
 
 ## API Integration
 
 All API calls are centralized in `src/api/api.js` using Axios. The base URL points to the Flask backend at `http://localhost:5001/api`.
 
 Available functions:
+
 - `signup(data)` — Register a new account
 - `login(data)` — Login and receive JWT tokens
 - `upload(data, token)` — Get a presigned S3 URL for file upload

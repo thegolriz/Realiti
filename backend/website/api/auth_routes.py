@@ -66,7 +66,13 @@ def logout_api():
 @auth_routes.route("/signup", methods=["POST"])
 def signup_api():
     data = request.get_json()
-    if not data or "email" not in data or "first_name" not in data or "last_name" not in data or "password" not in data:
+    if (
+        not data
+        or "email" not in data
+        or "first_name" not in data
+        or "last_name" not in data
+        or "password" not in data
+    ):
         return jsonify({"error": "Missing required fields"}), 400
 
     email = data.get("email")
@@ -80,8 +86,7 @@ def signup_api():
     existing = User.query.filter_by(email=email).first()
     if existing:
         return jsonify({"error": "email in use"}), 400
-    password = generate_password_hash(
-        password, method="scrypt", salt_length=16)
+    password = generate_password_hash(password, method="scrypt", salt_length=16)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
     )

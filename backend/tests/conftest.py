@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def userInfo():
     email = "test@test.test"
