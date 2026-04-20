@@ -1,18 +1,17 @@
+import datetime
 import logging
 import os
-import datetime
+
 import boto3
-from botocore.exceptions import ClientError
 from botocore.config import Config
-from flask_jwt_extended import (get_jwt_identity, jwt_required)
+from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 s3Routes = Blueprint("s3Routes", __name__)
 
 
-def create_presigned_url(
-    bucket_name, object_name, region_name, expiration=3600
-):
+def create_presigned_url(bucket_name, object_name, region_name, expiration=3600):
     """Generate a presigned URL to share an S3 object
 
     :param bucket_name: string
@@ -24,14 +23,14 @@ def create_presigned_url(
 
     # Generate a presigned URL for the S3 object
     s3_client = boto3.client(
-        's3',
+        "s3",
         region_name=region_name,
-        config=Config(signature_version='s3v4'),
+        config=Config(signature_version="s3v4"),
     )
     try:
         response = s3_client.generate_presigned_url(
-            'put_object',
-            Params={'Bucket': bucket_name, 'Key': object_name},
+            "put_object",
+            Params={"Bucket": bucket_name, "Key": object_name},
             ExpiresIn=expiration,
         )
     except ClientError as e:
@@ -54,8 +53,7 @@ def s3_api():
         return jsonify({"error": "docuemnt has no name"}), 400
     filename = data["filename"]
     user_id = get_jwt_identity()
-    fileId = str(user_id)+'_' + \
-        datetime.datetime.now().isoformat() + '_' + filename
+    fileId = str(user_id) + "_" + datetime.datetime.now().isoformat() + "_" + filename
     url = create_presigned_url(s3_bucket, fileId, s3_region)
     if url is None:
         return jsonify({"error": "Failed to create s3 url"}), 400

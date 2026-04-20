@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import func
 
 from . import db  # same as putting what folder we are currently in
 
@@ -17,7 +16,7 @@ class User(db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user = db.relationship('User', backref='posts')
+    user = db.relationship("User", backref="posts")
     title = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     description = db.Column(db.Text, nullable=False)

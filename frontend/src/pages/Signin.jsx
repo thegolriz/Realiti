@@ -51,17 +51,14 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     position: 'absolute',
     zIndex: -1,
     inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+    backgroundImage: 'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
     backgroundRepeat: 'no-repeat',
     ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+      backgroundImage: 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
     }),
   },
 }));
 export default function SignIn(props) {
-
   const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
@@ -77,7 +74,7 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     event.preventDefault();
     if (emailError || passwordError) {
       return;
@@ -88,17 +85,15 @@ export default function SignIn(props) {
       password: data.get('password'),
     });
     login({
-      email: data.get("email"),
-      password: data.get("password"),
+      email: data.get('email'),
+      password: data.get('password'),
     })
-      .then((response) => {
-        console.log(response.data)
-        localStorage.setItem('token', response.data.access_token)
-        console.log(localStorage.getItem('token'))
-
-
+      .then(response => {
+        console.log(response.data);
+        localStorage.setItem('token', response.data.access_token);
+        console.log(localStorage.getItem('token'));
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
       });
   };
@@ -203,7 +198,7 @@ export default function SignIn(props) {
               fullWidth
               variant="contained"
               onClick={validateInputs}
-            // href="/dashboard"
+              // href="/dashboard"
             >
               Sign in
             </Button>
@@ -222,11 +217,7 @@ export default function SignIn(props) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography sx={{ textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
-              <Link
-                href="/signup"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-              >
+              <Link href="/signup" variant="body2" sx={{ alignSelf: 'center' }}>
                 Sign up
               </Link>
             </Typography>

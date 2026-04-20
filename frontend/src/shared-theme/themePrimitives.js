@@ -69,7 +69,7 @@ export const red = {
   900: 'hsl(0, 93%, 6%)',
 };
 
-export const getDesignTokens = (mode) => {
+export const getDesignTokens = mode => {
   customShadows[1] =
     mode === 'dark'
       ? 'hsla(220, 30%, 5%, 0.7) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.8) 0px 8px 16px -5px'

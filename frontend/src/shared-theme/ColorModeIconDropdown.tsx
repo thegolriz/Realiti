@@ -25,7 +25,7 @@ export default function ColorModeIconDropdown(props: IconButtonOwnProps) {
     return (
       <Box
         data-screenshot="toggle-mode"
-        sx={(theme) => ({
+        sx={theme => ({
           verticalAlign: 'bottom',
           display: 'inline-flex',
           width: '2.25rem',
