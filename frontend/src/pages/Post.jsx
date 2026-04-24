@@ -6,7 +6,8 @@ import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
 
-export default function Post() {
+export default function Post(props) {
+  const { closeProp } = props;
   const [descriptionError, setDescriptionError] = React.useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
   const [documentError, setDocumentError] = React.useState(false);
@@ -65,7 +66,8 @@ export default function Post() {
               { description: data.get('description'), document: cleanUrl },
               localStorage.getItem('token')
             )
-          );
+          )
+          .then(() => closeProp());
       })
       .catch(err => {
         console.error(err);
@@ -80,7 +82,7 @@ export default function Post() {
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',
-        height: '100vh',
+        height: '60vh',
         justifyContent: 'center',
         gap: 4,
       }}
@@ -112,7 +114,7 @@ export default function Post() {
               type="file"
               name="document"
               id="document"
-              onChange={(event) => {
+              onChange={event => {
                 const files = Array.from(event.target.files);
                 setUploadedFileNames(files.map(f => f.name));
               }}
@@ -120,9 +122,7 @@ export default function Post() {
             />
           </Button>
           {uploadedFileNames.length > 0 && (
-            <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
-              {uploadedFileNames.join(', ')}
-            </Box>
+            <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{uploadedFileNames.join(', ')}</Box>
           )}
         </Box>
         <FormHelperText
@@ -131,8 +131,10 @@ export default function Post() {
             fontWeight: 500,
             fontSize: 14,
             mt: 0.5,
-          }}>
-          A document/image to show proof of your post will go a long way.<br /> Without one your post will have a warning label attached. Learn More
+          }}
+        >
+          A document/image to show proof of your post will go a long way.
+          <br /> Without one your post will have a warning label attached. Learn More
         </FormHelperText>
       </Box>
       <Box>
