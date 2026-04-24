@@ -3,6 +3,7 @@ import { Box, Stack } from '@mui/material';
 import PostCard from '../components/PostCard.jsx';
 import { useState, useEffect } from 'react';
 import api from '../api/api.js';
+import CreatePostButton from '../components/CreatePostButton.jsx';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -32,8 +33,10 @@ const Dashboard = () => {
   return (
     <Box>
       <NavBar />
+
       <Box sx={{ width: '50%', margin: '0 auto' }}>
         <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
+          <CreatePostButton />
           {listPosts}
         </Stack>
       </Box>

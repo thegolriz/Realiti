@@ -1,13 +1,14 @@
 # Realiti Backend
 
-* [Local Install](#local-install)
-* [Postman](#running-via-postman)
-* [Curl](#running-via-curl)
-* [Issues](https://github.com/thegolriz/Realiti/issues)
+- [Local Install](#local-install)
+- [Postman](#running-via-postman)
+- [Curl](#running-via-curl)
+- [Issues](https://github.com/thegolriz/Realiti/issues)
 
 ## Local Install
 
 Clone the repo and ensure you have the following installed:
+
 - Docker
 - Poetry
 
@@ -15,15 +16,15 @@ Clone the repo and ensure you have the following installed:
 
 Create a `.env` file in the root directory. Reference the `docker-compose.yml` for the required database variables. You will also need:
 
-| Variable | Description |
-|----------|-------------|
-| `SECRET_KEY` | Flask secret key |
-| `SQLALCHEMY_DATABASE_URI` | PostgreSQL connection string |
-| `JWT_SECRET_KEY` | JWT signing key |
-| `S3_BUCKET` | AWS S3 bucket name |
-| `S3_REGION` | AWS region (e.g. `us-east-1`) |
-| `AWS_ACCESS_KEY_ID` | IAM access key |
-| `AWS_SECRET_ACCESS_KEY` | IAM secret key |
+| Variable                  | Description                   |
+| ------------------------- | ----------------------------- |
+| `SECRET_KEY`              | Flask secret key              |
+| `SQLALCHEMY_DATABASE_URI` | PostgreSQL connection string  |
+| `JWT_SECRET_KEY`          | JWT signing key               |
+| `S3_BUCKET`               | AWS S3 bucket name            |
+| `S3_REGION`               | AWS region (e.g. `us-east-1`) |
+| `AWS_ACCESS_KEY_ID`       | IAM access key                |
+| `AWS_SECRET_ACCESS_KEY`   | IAM secret key                |
 
 There is a `.env_example` available. Update it with your values then rename it:
 
@@ -70,23 +71,23 @@ Ensure Postman agent is installed and running.
 
 ### Auth Endpoints
 
-| Endpoint | Method | Body / Auth |
-|----------|--------|-------------|
-| `/api/hello` | GET | None |
-| `/api/signup` | POST | JSON body (see below) |
-| `/api/login` | POST | JSON body (see below) |
-| `/api/protected` | GET | Bearer token (access token) |
-| `/api/refresh` | POST | Bearer token (refresh token) |
-| `/api/logout` | POST/DELETE | None |
+| Endpoint         | Method      | Body / Auth                  |
+| ---------------- | ----------- | ---------------------------- |
+| `/api/hello`     | GET         | None                         |
+| `/api/signup`    | POST        | JSON body (see below)        |
+| `/api/login`     | POST        | JSON body (see below)        |
+| `/api/protected` | GET         | Bearer token (access token)  |
+| `/api/refresh`   | POST        | Bearer token (refresh token) |
+| `/api/logout`    | POST/DELETE | None                         |
 
 #### Example Signup
 
 ```json
 {
-    "email": "test@test.test",
-    "first_name": "tester",
-    "last_name": "test",
-    "password": "12345678"
+  "email": "test@test.test",
+  "first_name": "tester",
+  "last_name": "test",
+  "password": "12345678"
 }
 ```
 
@@ -96,8 +97,8 @@ Passwords are hashed with scrypt before storage.
 
 ```json
 {
-    "email": "test@test.test",
-    "password": "12345678"
+  "email": "test@test.test",
+  "password": "12345678"
 }
 ```
 
@@ -105,15 +106,15 @@ Returns `access_token` and `refresh_token`. Access token expires in 1 hour.
 
 ### S3 Upload Endpoint
 
-| Endpoint | Method | Body / Auth |
-|----------|--------|-------------|
-| `/api/upload` | POST | Bearer token + JSON body |
+| Endpoint      | Method | Body / Auth              |
+| ------------- | ------ | ------------------------ |
+| `/api/upload` | POST   | Bearer token + JSON body |
 
 #### Example Upload Request
 
 ```json
 {
-    "filename": "photo.jpg"
+  "filename": "photo.jpg"
 }
 ```
 
@@ -121,16 +122,16 @@ Returns a presigned S3 URL. Use this URL to PUT the file directly to S3 from the
 
 ### Post Endpoint
 
-| Endpoint | Method | Body / Auth |
-|----------|--------|-------------|
-| `/api/post` | POST | Bearer token + JSON body |
+| Endpoint    | Method | Body / Auth              |
+| ----------- | ------ | ------------------------ |
+| `/api/post` | POST   | Bearer token + JSON body |
 
 #### Example Post Request
 
 ```json
 {
-    "description": "Great experience with this realtor",
-    "document": "https://your-bucket.s3.amazonaws.com/1_2026-04-04_photo.jpg"
+  "description": "Great experience with this realtor",
+  "document": "https://your-bucket.s3.amazonaws.com/1_2026-04-04_photo.jpg"
 }
 ```
 
