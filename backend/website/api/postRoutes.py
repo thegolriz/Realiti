@@ -23,16 +23,22 @@ def post_api():
             400,
         )
     description = data["description"]
-    document = data["document"]
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(document.split("/")[-1])
-    passed = moderation_check(s3_obj)
-    if passed:
-        new_post = Post(user_id=user_id, description=description, s3_url=document)
-        db.session.add(new_post)
-        db.session.commit()
-        return jsonify({"message": "Post created"}), 200
-    return jsonify({"error": "This post contains inappropriate content"}), 400
+    print("the docuemtn contains ", data["document"])
+    if data["document"] is not None:
+        document = data["document"]
+        s3_obj = urllib.parse.unquote(document.split("/")[-1])
+        passed = moderation_check(s3_obj)
+        if passed:
+            new_post = Post(user_id=user_id, description=description, s3_url=document)
+            db.session.add(new_post)
+            db.session.commit()
+            return jsonify({"message": "Post created"}), 200
+        return jsonify({"error": "This post contains inappropriate content"}), 400
+    new_post = Post(user_id=user_id, description=description)
+    db.session.add(new_post)
+    db.session.commit()
+    return jsonify({"message": "Post created"}), 200
 
 
 @postRoutes.route("/post", methods=["GET"])
