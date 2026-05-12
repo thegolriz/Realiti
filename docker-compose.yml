@@ -1,7 +1,7 @@
 services:
   backend:
     ports:
-    - "5001:5000"
+      - '5001:5000'
     container_name: realiti
     build:
       context: ./backend
@@ -12,7 +12,7 @@ services:
     image: postgres:17
     container_name: realitiDB
     environment:
-      POSTGRES_DB: ${POSTGRES_DB} 
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:

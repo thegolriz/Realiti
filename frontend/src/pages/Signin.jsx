@@ -14,7 +14,6 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-// import ForgotPassword from './components/ForgotPassword';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { login } from '../api/api.js';
@@ -124,8 +123,8 @@ export default function SignIn(props) {
       setPasswordError(false);
       setPasswordErrorMessage('');
     }
-    if (!isValid) {
-      navigate('/dashboard');
+    if (isValid) {
+      navigate('/');
     }
     return isValid;
   };
@@ -193,13 +192,7 @@ export default function SignIn(props) {
               label="Remember me"
             />
             {/* <ForgotPassword open={open} handleClose={handleClose} /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-              // href="/dashboard"
-            >
+            <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
               Sign in
             </Button>
             {/* <Link */}

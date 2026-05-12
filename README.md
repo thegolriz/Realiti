@@ -8,16 +8,16 @@ Users can share their experiences with realtors, supported by uploaded images or
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React, Material UI |
-| Backend | Flask, Python, Poetry |
-| Database | PostgreSQL |
-| Auth | JWT (Flask-JWT-Extended) |
-| Containerization | Docker, Docker Compose |
-| File Storage | AWS S3 (presigned URLs) |
-| Image Moderation | AWS Rekognition |
-| Hosting (planned) | AWS EC2 |
+| Layer             | Technology               |
+| ----------------- | ------------------------ |
+| Frontend          | React, Material UI       |
+| Backend           | Flask, Python, Poetry    |
+| Database          | PostgreSQL               |
+| Auth              | JWT (Flask-JWT-Extended) |
+| Containerization  | Docker, Docker Compose   |
+| File Storage      | AWS S3 (presigned URLs)  |
+| Image Moderation  | AWS Rekognition          |
+| Hosting (planned) | AWS EC2                  |
 
 ## Moderation Pipeline
 

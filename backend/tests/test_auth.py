@@ -1,5 +1,3 @@
-
-
 def test_signup(client, userInfo):
     email, password = userInfo
     user = {
