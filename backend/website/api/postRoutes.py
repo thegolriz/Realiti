@@ -19,16 +19,18 @@ def post_api():
         return jsonify({"error": "Empty post"}), 400
     if "description" not in data:
         return (
-            jsonify({"error": ("Please provide a" "description for your post.")}),
+            jsonify({"error": ("Please provide a description for your post.")}),
             400,
         )
+    title = data["description"]
     description = data["description"]
-    document = data["document"]
+    document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(document.split("/")[-1])
+    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
     passed = moderation_check(s3_obj)
     if passed:
-        new_post = Post(user_id=user_id, description=description, s3_url=document)
+        new_post = Post(user_id=user_id, title=title,
+                        description=description, s3_url=document)
         db.session.add(new_post)
         db.session.commit()
         return jsonify({"message": "Post created"}), 200

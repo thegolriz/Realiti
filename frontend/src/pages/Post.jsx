@@ -28,7 +28,6 @@ export default function Post(props) {
 
   const validateInputs = () => {
     const description = document.getElementById('description');
-    const documents = document.getElementById('document');
     let isValid = true;
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
@@ -38,40 +37,55 @@ export default function Post(props) {
       setDescriptionError(false);
       setDescriptionErrorMessage('');
     }
-    if (!documents.value) {
-      setDocumentError(true);
-      setDocumentErrorMessage('Please provide an image or supporting document for your post');
-      isValid = false;
-    } else {
-      setDocumentError(false);
-      setDocumentErrorMessage('');
-    }
+    console.log("not valid")
     return isValid;
   };
 
+  const hasDocument = () => {
+
+    const documents = document.getElementById('document');
+    let hasDoc = true;
+    if (!documents.value) {
+      hasDoc = false;
+    }
+    return hasDoc;
+  }
+
   const handleSubmit = event => {
+
     event.preventDefault();
     if (!validateInputs()) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    upload({ filename: data.get('document').name }, localStorage.getItem('token'))
-      .then(response => {
-        const presignedUrl = response.data.s3_url;
-        const cleanUrl = presignedUrl.split('?')[0];
-        return axios
-          .put(presignedUrl, data.get('document'))
-          .then(() =>
-            createPost(
-              { description: data.get('description'), document: cleanUrl },
-              localStorage.getItem('token')
+    if (hasDocument()) {
+      upload({ filename: data.get('document').name }, localStorage.getItem('token'))
+        .then(response => {
+          const presignedUrl = response.data.s3_url;
+          const cleanUrl = presignedUrl.split('?')[0];
+          return axios
+            .put(presignedUrl, data.get('document'))
+            .then(() =>
+              createPost(
+                { title: data.get("title"), description: data.get('description'), document: cleanUrl },
+                localStorage.getItem('token')
+              )
             )
-          )
-          .then(() => closeProp());
-      })
-      .catch(err => {
-        console.error(err);
-      });
+            .then(() => closeProp());
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    } else {
+      createPost(
+        { title: data.get("title"), description: data.get('description') },
+        localStorage.getItem('token')
+      )
+        .then(() => closeProp())
+        .catch(err => {
+          console.error(err);
+        });
+    }
   };
 
   return (
@@ -87,7 +101,16 @@ export default function Post(props) {
         gap: 4,
       }}
     >
-      <Box>
+      <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+        <TextField
+          name="title"
+          id="title"
+          label="Name your experience (optional)"
+          fullWidth
+          multiline
+          variant="outlined"
+          sx={{ width: '25vw', mb: 3 }}
+        />
         <TextField
           name="description"
           id="description"
