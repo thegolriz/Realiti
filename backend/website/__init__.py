@@ -25,7 +25,8 @@ def create_app():
 
     # app configs here
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "SQLALCHEMY_DATABASE_URI")
     # jwt configs bewloer
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 3600
@@ -34,16 +35,19 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db)  # noqa: F841
     jwt = JWTManager(app)  # noqa: F841
-    CORS(app, origins=["http://localhost:3000", "https://yourfuturefrontend.com"])
+    CORS(app, origins=["http://localhost:3000",
+         "https://yourfuturefrontend.com"])
     from website.api.auth_routes import auth_routes  # noqa: F401
     from website.api.postRoutes import postRoutes  # noqa: F401
     from website.api.routes import routes  # noqa: F401
     from website.api.s3Routes import s3Routes
+    from website.api.postLike import postLike
 
     app.register_blueprint(routes, url_prefix="/api")
     app.register_blueprint(auth_routes, url_prefix="/api")
     app.register_blueprint(postRoutes, url_prefix="/api")
     app.register_blueprint(s3Routes, url_prefix="/api")
-    from .models import Post, User  # noqa: F401
+    app.register_blueprint(postLike, url_prefix="/like")
+    from .models import Post, User, PostLikes  # noqa: F401
 
     return app

@@ -22,11 +22,12 @@ def post_api():
             jsonify({"error": ("Please provide a description for your post.")}),
             400,
         )
-    title = data["description"]
+    title = data["title"]
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
+    s3_obj = urllib.parse.unquote(
+        document.split("/")[-1]) if document else None
     passed = moderation_check(s3_obj)
     if passed:
         new_post = Post(user_id=user_id, title=title,

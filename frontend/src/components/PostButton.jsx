@@ -1,5 +1,4 @@
 import { Button, Typography } from '@mui/material';
-import ArrowRightAltOutlinedIcon from '@mui/icons-material/ArrowRightAltOutlined';
 import { Link as RouterLink } from 'react-router-dom';
 const PostButton = props => {
   const { text, textSx, buttonSx, to, iconStart, iconEnd, onClick } = props;

@@ -14,4 +14,8 @@ export const createPost = (data, token) =>
   api.post('/post', data, {
     headers: { Authorization: `Bearer ${token}` },
   });
+export const postLike = (data, token) =>
+  api.post('/like', data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 export default api;

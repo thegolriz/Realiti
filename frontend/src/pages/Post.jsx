@@ -1,4 +1,4 @@
-import { TextField, Box, Button, Input, FormControl, FormHelperText } from '@mui/material';
+import { TextField, Box, Button, FormHelperText } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as React from 'react';
@@ -10,8 +10,6 @@ export default function Post(props) {
   const { closeProp } = props;
   const [descriptionError, setDescriptionError] = React.useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
-  const [documentError, setDocumentError] = React.useState(false);
-  const [documentErrorMessage, setDocumentErrorMessage] = React.useState('');
   const [uploadedFileNames, setUploadedFileNames] = React.useState([]);
 
   const VisuallyHiddenInput = styled('input')({
