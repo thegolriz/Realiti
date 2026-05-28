@@ -2,7 +2,7 @@ import { Box, Typography, Avatar, Stack } from '@mui/material';
 import LikeButton from "./LikeButton";
 
 const PostCard = props => {
-  const { postTitle, profilePic, userName, postBody, key } = props;
+  const { postTitle, profilePic, userName, postBody, key, postId } = props;
   const longText = `Here is a generic post body which will be reaplced with user genereated text\n
                   One could assume that the text body has latin like other text bodies but \n
                   I have opted to do this instead.`;
@@ -32,7 +32,7 @@ const PostCard = props => {
           </Box>
         </Stack>
         <Box sx={{ mt: "auto", alignSelf: 'flex-start' }}>
-          <LikeButton postId={key} />
+          <LikeButton postId={postId} />
         </Box>
       </Box>
 

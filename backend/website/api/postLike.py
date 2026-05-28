@@ -24,8 +24,8 @@ def like_api():
     if userCheck:
         db.session.delete(userCheck)
         db.session.commit()
-        return jsonify({"message": "Unliked"})
+        return jsonify({"liked": False}), 200
     liked = PostLikes(postId=postId, userSentLike=userSentLike)
     db.session.add(liked)
     db.session.commit()
-    return jsonify({"message": "Like sent"}), 200
+    return jsonify({"liked": True}), 200
