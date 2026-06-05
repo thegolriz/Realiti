@@ -6,85 +6,58 @@ import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
 
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
 export default function Post(props) {
   const { closeProp } = props;
   const [descriptionError, setDescriptionError] = React.useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
-  const [uploadedFileNames, setUploadedFileNames] = React.useState([]);
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
+  const [fileHolder, setFileHolder] = React.useState();
 
   const validateInputs = () => {
     const description = document.getElementById('description');
-    let isValid = true;
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
-      setDescriptionErrorMessage('Please enter an accurate description about your experience');
-      isValid = false;
-    } else {
-      setDescriptionError(false);
-      setDescriptionErrorMessage('');
+      setDescriptionErrorMessage(
+        'Please enter an accurate description about your experience',
+      );
+      return false;
     }
-    console.log('not valid');
-    return isValid;
+    setDescriptionError(false);
+    setDescriptionErrorMessage('');
+    return true;
   };
 
-  const hasDocument = () => {
-    const documents = document.getElementById('document');
-    let hasDoc = true;
-    if (!documents.value) {
-      hasDoc = false;
-    }
-    return hasDoc;
-  };
-
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
     if (!validateInputs()) {
       return;
     }
-    const data = new FormData(event.currentTarget);
-    if (hasDocument()) {
-      upload({ filename: data.get('document').name }, localStorage.getItem('token'))
-        .then(response => {
-          const presignedUrl = response.data.s3_url;
-          const cleanUrl = presignedUrl.split('?')[0];
-          return axios
-            .put(presignedUrl, data.get('document'))
-            .then(() =>
-              createPost(
-                {
-                  title: data.get('title'),
-                  description: data.get('description'),
-                  document: cleanUrl,
-                },
-                localStorage.getItem('token')
-              )
-            )
-            .then(() => closeProp());
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    } else {
-      createPost(
-        { title: data.get('title'), description: data.get('description') },
-        localStorage.getItem('token')
-      )
-        .then(() => closeProp())
-        .catch(err => {
-          console.error(err);
-        });
+    const title = event.currentTarget.title.value;
+    const description = event.currentTarget.description.value;
+    const token = localStorage.getItem('token');
+    try {
+      let documentUrl = null;
+      if (fileHolder) {
+        const response = await upload({ filename: fileHolder.name }, token);
+        const presignedUrl = response.data.s3_url;
+        documentUrl = presignedUrl.split('?')[0];
+        await axios.put(presignedUrl, fileHolder);
+      }
+      await createPost({ title, description, document: documentUrl }, token);
+      closeProp && closeProp();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -145,14 +118,12 @@ export default function Post(props) {
               name="document"
               id="document"
               onChange={event => {
-                const files = Array.from(event.target.files);
-                setUploadedFileNames(files.map(f => f.name));
+                setFileHolder(event.target.files[0]);
               }}
-              multiple
             />
           </Button>
-          {uploadedFileNames.length > 0 && (
-            <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{uploadedFileNames.join(', ')}</Box>
+          {fileHolder && (
+            <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{fileHolder.name}</Box>
           )}
         </Box>
         <FormHelperText

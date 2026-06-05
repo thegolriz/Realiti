@@ -1,27 +1,23 @@
 import os
 
 import pytest
-from sqlalchemy.pool import StaticPool
+
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key")
+os.environ.setdefault("SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
+
+from website import create_app, db  # noqa: E402
 
 
 @pytest.fixture
-def app():
-    os.environ["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    os.environ["SECRET_KEY"] = "test-secret"
-    os.environ["JWT_SECRET_KEY"] = "test-secret"
-
-    from website import create_app, db
-
+def app(tmp_path):
+    os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{tmp_path / 'test.db'}"
     app = create_app()
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"check_same_thread": False},
-        "poolclass": StaticPool,
-    }
-
     with app.app_context():
         db.create_all()
         yield app
+        db.session.remove()
         db.drop_all()
 
 
@@ -32,9 +28,7 @@ def client(app):
 
 @pytest.fixture
 def userInfo():
-    email = "test@test.test"
-    password = "12345678"
-    return email, password
+    return "test@test.test", "12345678"
 
 
 @pytest.fixture
