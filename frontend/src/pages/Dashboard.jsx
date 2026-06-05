@@ -26,6 +26,7 @@ const Dashboard = () => {
     <PostCard
       postTitle={data.title}
       key={data.id}
+      postId={data.id}
       userName={data.name}
       postBody={data.description}
     />
@@ -33,7 +34,6 @@ const Dashboard = () => {
   return (
     <Box>
       <NavBar />
-
       <Box sx={{ width: '50%', margin: '0 auto' }}>
         <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
           <CreatePostButton />

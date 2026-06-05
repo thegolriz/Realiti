@@ -5,6 +5,8 @@ from botocore.config import Config
 
 
 def moderation_check(s3_object):
+    if not s3_object:
+        return True
     s3_bucket = os.getenv("S3_BUCKET")
     s3_region = os.getenv("S3_REGION")
     s3_client = boto3.client(

@@ -6,7 +6,6 @@ import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
 
-
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -19,7 +18,6 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-
 export default function Post(props) {
   const { closeProp } = props;
   const [descriptionError, setDescriptionError] = React.useState(false);
@@ -30,7 +28,9 @@ export default function Post(props) {
     const description = document.getElementById('description');
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
-      setDescriptionErrorMessage('Please enter an accurate description about your experience');
+      setDescriptionErrorMessage(
+        'Please enter an accurate description about your experience',
+      );
       return false;
     }
     setDescriptionError(false);
@@ -43,6 +43,7 @@ export default function Post(props) {
     if (!validateInputs()) {
       return;
     }
+    const title = event.currentTarget.title.value;
     const description = event.currentTarget.description.value;
     const token = localStorage.getItem('token');
     try {
@@ -53,7 +54,7 @@ export default function Post(props) {
         documentUrl = presignedUrl.split('?')[0];
         await axios.put(presignedUrl, fileHolder);
       }
-      await createPost({ description, document: documentUrl }, token);
+      await createPost({ title, description, document: documentUrl }, token);
       closeProp && closeProp();
     } catch (err) {
       console.error(err);
@@ -73,7 +74,23 @@ export default function Post(props) {
         gap: 4,
       }}
     >
-      <Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <TextField
+          name="title"
+          id="title"
+          label="Name your experience (optional)"
+          fullWidth
+          multiline
+          variant="outlined"
+          sx={{ width: '25vw', mb: 3 }}
+        />
         <TextField
           name="description"
           id="description"
