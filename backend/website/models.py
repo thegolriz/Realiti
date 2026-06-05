@@ -24,25 +24,26 @@ class Post(db.Model):
 
 
 class PostLikes(db.Model):
-    postId = db.Column(db.Integer, db.ForeignKey("post.id"),
-                       nullable=False, primary_key=True)
+    postId = db.Column(
+        db.Integer, db.ForeignKey("post.id"), nullable=False, primary_key=True
+    )
     userSentLike = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True)
+        db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True
+    )
 
 
 class PostDislikes(db.Model):
-    postId = db.Column(db.Integer, db.ForeignKey("post.id"),
-                       nullable=False, primary_key=True)
+    postId = db.Column(
+        db.Integer, db.ForeignKey("post.id"), nullable=False, primary_key=True
+    )
     userSentDislike = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True)
+        db.Integer, db.ForeignKey("user.id"), nullable=False, primary_key=True
+    )
 
 
 class Replies(db.Model):
-    postId = db.Column(db.Integer, db.ForeignKey("post.id"),
-                       nullable=False)
-    userReplied = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=False
-    )
+    postId = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+    userReplied = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     reply_text = db.Column(db.Text, nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     replied_at = db.Column(db.DateTime, default=datetime.now(tz=timezone.utc))

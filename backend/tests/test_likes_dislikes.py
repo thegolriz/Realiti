@@ -22,14 +22,18 @@ def test_like_no_auth(client, post_id):
 
 
 def test_dislike_post(client, auth_headers, post_id):
-    response = client.post("/api/dislike", json={"postId": post_id}, headers=auth_headers)
+    response = client.post(
+        "/api/dislike", json={"postId": post_id}, headers=auth_headers
+    )
     assert response.status_code == 200
     assert response.get_json()["disliked"] is True
 
 
 def test_undislike_post(client, auth_headers, post_id):
     client.post("/api/dislike", json={"postId": post_id}, headers=auth_headers)
-    response = client.post("/api/dislike", json={"postId": post_id}, headers=auth_headers)
+    response = client.post(
+        "/api/dislike", json={"postId": post_id}, headers=auth_headers
+    )
     assert response.status_code == 200
     assert response.get_json()["disliked"] is False
 

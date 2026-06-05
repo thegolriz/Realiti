@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Replies, Post, User
+from website.models import Post, Replies, User
 
 repliesRoutes = Blueprint("repliesRoutes", __name__)
 
@@ -33,10 +33,14 @@ def get_replies(post_id):
     result = []
     for reply in replies:
         user = User.query.get(reply.userReplied)
-        result.append({
-            "id": reply.id,
-            "reply_text": reply.reply_text,
-            "userName": user.first_name if user else "Unknown",
-            "replied_at": reply.replied_at.isoformat() if reply.replied_at else None,
-        })
+        result.append(
+            {
+                "id": reply.id,
+                "reply_text": reply.reply_text,
+                "userName": user.first_name if user else "Unknown",
+                "replied_at": (
+                    reply.replied_at.isoformat() if reply.replied_at else None
+                ),
+            }
+        )
     return jsonify(result), 200

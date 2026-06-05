@@ -2,8 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import PostLikes, Post
-
+from website.models import Post, PostLikes
 
 postLike = Blueprint("postLikes", __name__)
 
@@ -20,7 +19,8 @@ def like_api():
     if not postExists:
         return jsonify({"error": "Post does not exist"}), 404
     userCheck = PostLikes.query.filter_by(
-        userSentLike=userSentLike, postId=postId).first()
+        userSentLike=userSentLike, postId=postId
+    ).first()
     if userCheck:
         db.session.delete(userCheck)
         db.session.commit()

@@ -2,8 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import PostDislikes, Post
-
+from website.models import Post, PostDislikes
 
 postDislike = Blueprint("postDislikes", __name__)
 
@@ -20,7 +19,8 @@ def dislike_api():
     if not postExists:
         return jsonify({"error": "Post does not exist"}), 404
     userCheck = PostDislikes.query.filter_by(
-        userSentDislike=userSentDislike, postId=postId).first()
+        userSentDislike=userSentDislike, postId=postId
+    ).first()
     if userCheck:
         db.session.delete(userCheck)
         db.session.commit()
