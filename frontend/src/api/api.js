@@ -18,4 +18,13 @@ export const postLike = (data, token) =>
   api.post('/like', data, {
     headers: { Authorization: `Bearer ${token}` },
   });
+export const postDislike = (data, token) =>
+  api.post('/dislike', data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+export const postReply = (data, token) =>
+  api.post('/reply', data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+export const getReplies = postId => api.get(`/replies/${postId}`);
 export default api;

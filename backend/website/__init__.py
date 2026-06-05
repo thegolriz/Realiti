@@ -42,12 +42,16 @@ def create_app():
     from website.api.routes import routes  # noqa: F401
     from website.api.s3Routes import s3Routes
     from website.api.postLike import postLike
+    from website.api.postDislike import postDislike
+    from website.api.repliesRoutes import repliesRoutes
 
     app.register_blueprint(routes, url_prefix="/api")
     app.register_blueprint(auth_routes, url_prefix="/api")
     app.register_blueprint(postRoutes, url_prefix="/api")
     app.register_blueprint(s3Routes, url_prefix="/api")
     app.register_blueprint(postLike, url_prefix="/api")
-    from .models import Post, User, PostLikes  # noqa: F401
+    app.register_blueprint(postDislike, url_prefix="/api")
+    app.register_blueprint(repliesRoutes, url_prefix="/api")
+    from .models import Post, User, PostLikes, PostDislikes, Replies  # noqa: F401
 
     return app
