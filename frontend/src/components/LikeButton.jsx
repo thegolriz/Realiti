@@ -5,8 +5,8 @@ import { useState } from 'react';
 
 const LikeButton = props => {
   const { sx, postId } = props;
-  const [likes, setLikes] = useState(0)
-  const [liked, setLiked] = useState(false)
+  const [likes, setLikes] = useState(0);
+  const [liked, setLiked] = useState(false);
 
   const handleLike = () => {
     postLike({ postId: postId }, localStorage.getItem('token'))

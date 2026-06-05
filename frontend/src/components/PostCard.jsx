@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Avatar, Stack } from '@mui/material';
-import LikeButton from "./LikeButton";
-import DislikeButton from "./DislikeButton";
-import ReplyButton from "./ReplyButton";
-import ReplyCard from "./ReplyCard";
+import LikeButton from './LikeButton';
+import DislikeButton from './DislikeButton';
+import ReplyButton from './ReplyButton';
+import ReplyCard from './ReplyCard';
 import { getReplies } from '../api/api';
 
 const PostCard = ({ postTitle, profilePic, userName, postBody, postId }) => {

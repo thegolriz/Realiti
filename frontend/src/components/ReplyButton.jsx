@@ -47,7 +47,9 @@ const ReplyButton = ({ postId, onReplySubmitted }) => {
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
             <Button onClick={handleClose}>Cancel</Button>
-            <Button variant="contained" onClick={handleSubmit}>Reply</Button>
+            <Button variant="contained" onClick={handleSubmit}>
+              Reply
+            </Button>
           </Box>
         </Box>
       </Dialog>

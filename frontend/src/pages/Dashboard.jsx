@@ -35,7 +35,6 @@ const Dashboard = () => {
     <Box>
       <NavBar />
       <Box sx={{ width: '50%', margin: '0 auto' }}>
-
         <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
           <CreatePostButton />
           {listPosts}

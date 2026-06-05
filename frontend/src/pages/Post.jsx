@@ -35,22 +35,20 @@ export default function Post(props) {
       setDescriptionError(false);
       setDescriptionErrorMessage('');
     }
-    console.log("not valid")
+    console.log('not valid');
     return isValid;
   };
 
   const hasDocument = () => {
-
     const documents = document.getElementById('document');
     let hasDoc = true;
     if (!documents.value) {
       hasDoc = false;
     }
     return hasDoc;
-  }
+  };
 
   const handleSubmit = event => {
-
     event.preventDefault();
     if (!validateInputs()) {
       return;
@@ -65,7 +63,11 @@ export default function Post(props) {
             .put(presignedUrl, data.get('document'))
             .then(() =>
               createPost(
-                { title: data.get("title"), description: data.get('description'), document: cleanUrl },
+                {
+                  title: data.get('title'),
+                  description: data.get('description'),
+                  document: cleanUrl,
+                },
                 localStorage.getItem('token')
               )
             )
@@ -76,7 +78,7 @@ export default function Post(props) {
         });
     } else {
       createPost(
-        { title: data.get("title"), description: data.get('description') },
+        { title: data.get('title'), description: data.get('description') },
         localStorage.getItem('token')
       )
         .then(() => closeProp())
@@ -99,7 +101,14 @@ export default function Post(props) {
         gap: 4,
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <TextField
           name="title"
           id="title"
