@@ -1,7 +1,8 @@
 import os
-from better_profanity import profanity
 import re
+
 import boto3
+from better_profanity import profanity
 from botocore.config import Config
 
 
@@ -35,21 +36,21 @@ def moderation_check(s3_object):
 
 
 LEET_MAP = {
-    '@': 'a',
-    '4': 'a',
-    '3': 'e',
-    '1': 'i',
-    '!': 'i',
-    '|': 'i',
-    '0': 'o',
-    '5': 's',
-    '$': 's',
-    '7': 't',
-    '+': 't',
-    '8': 'b',
-    '6': 'g',
-    '9': 'g',
-    '2': 'z',
+    "@": "a",
+    "4": "a",
+    "3": "e",
+    "1": "i",
+    "!": "i",
+    "|": "i",
+    "0": "o",
+    "5": "s",
+    "$": "s",
+    "7": "t",
+    "+": "t",
+    "8": "b",
+    "6": "g",
+    "9": "g",
+    "2": "z",
 }
 
 
@@ -64,7 +65,9 @@ def regex_check(title, description):
     description = normalize(description)
     if title:
         title = normalize(title)
-        if profanity.contains_profanity(title) or profanity.contains_profanity(description):
+        if profanity.contains_profanity(title) or profanity.contains_profanity(
+            description
+        ):
             return False
         if re.search(r"([a-zA-Z]\s){3,}", title):
             return False
