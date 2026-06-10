@@ -47,3 +47,6 @@ class Replies(db.Model):
     reply_text = db.Column(db.Text, nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     replied_at = db.Column(db.DateTime, default=datetime.now(tz=timezone.utc))
+    parent_reply_id = db.Column(
+        db.Integer, db.ForeignKey("replies.id"), nullable=True
+    )

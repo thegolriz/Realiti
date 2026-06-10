@@ -6,7 +6,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from website import db
 from website.models import Post
 
-from .moderationRoute import moderation_check
+from .moderationRoute import moderation_check, regex_check
 
 postRoutes = Blueprint("postRoutes", __name__)
 
@@ -26,9 +26,11 @@ def post_api():
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
-    passed = moderation_check(s3_obj)
-    if passed:
+    s3_obj = urllib.parse.unquote(
+        document.split("/")[-1]) if document else None
+    passed1 = moderation_check(s3_obj)
+    passed2 = regex_check(title, description)
+    if passed1 and passed2:
         new_post = Post(
             user_id=user_id, title=title, description=description, s3_url=document
         )

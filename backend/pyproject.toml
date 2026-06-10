@@ -29,6 +29,7 @@ pytest = "^8.4.1"
 requests = "^2.32.4"
 flask-cors = "^6.0.1"
 boto3 = "^1.42.82"
+better-profanity = "^0.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
