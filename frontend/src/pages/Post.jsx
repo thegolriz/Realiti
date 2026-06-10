@@ -28,9 +28,7 @@ export default function Post(props) {
     const description = document.getElementById('description');
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
-      setDescriptionErrorMessage(
-        'Please enter an accurate description about your experience',
-      );
+      setDescriptionErrorMessage('Please enter an accurate description about your experience');
       return false;
     }
     setDescriptionError(false);
