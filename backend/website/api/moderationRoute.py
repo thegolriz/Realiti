@@ -4,6 +4,7 @@ import re
 import boto3
 from better_profanity import profanity
 from botocore.config import Config
+import anthropic
 
 
 def moderation_check(s3_object):
@@ -73,6 +74,8 @@ def regex_check(title, description):
             return False
         if re.search(r"([a-zA-Z]\s){3,}", description):
             return False
+        # at this point we send data to claude
+        claude_text_check(title)
         return True
     else:
         if profanity.contains_profanity(description):
@@ -80,3 +83,18 @@ def regex_check(title, description):
         if re.search(r"([a-zA-Z]\s){3,}", description):
             return False
         return True
+
+
+def claude_text_check(text):
+    client = anthropic.Anthropic()
+    message = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=1000,
+        messages=[
+            {
+                "role": "user",
+                "content": "I'm sending you test data, do you see the text: "+text,
+            }
+        ],
+    )
+    print(message.content)
