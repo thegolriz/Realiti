@@ -1,10 +1,16 @@
-import { TextField, Box, Button, FormHelperText } from '@mui/material';
+import { TextField, Box, Button, FormHelperText, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
+import Notification, {
+  useNotification,
+  getServerError,
+  serverErrorSeverity,
+} from '../components/Notification.jsx';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -23,12 +29,14 @@ export default function Post(props) {
   const [descriptionError, setDescriptionError] = React.useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
   const [fileHolder, setFileHolder] = React.useState();
+  const { notification, notify, closeNotification } = useNotification();
 
   const validateInputs = () => {
     const description = document.getElementById('description');
     if (!description.value || description.value.length < 1) {
       setDescriptionError(true);
       setDescriptionErrorMessage('Please enter an accurate description about your experience');
+      notify('Please enter an accurate description about your experience.', 'warning');
       return false;
     }
     setDescriptionError(false);
@@ -43,102 +51,123 @@ export default function Post(props) {
     }
     const title = event.currentTarget.title.value;
     const description = event.currentTarget.description.value;
-    const token = localStorage.getItem('token');
     try {
       let documentUrl = null;
       if (fileHolder) {
-        const response = await upload({ filename: fileHolder.name }, token);
+        const response = await upload({ filename: fileHolder.name });
         const presignedUrl = response.data.s3_url;
         documentUrl = presignedUrl.split('?')[0];
         await axios.put(presignedUrl, fileHolder);
       }
-      await createPost({ title, description, document: documentUrl }, token);
+      await createPost({ title, description, document: documentUrl });
       closeProp && closeProp();
     } catch (err) {
-      console.error(err);
+      const message = getServerError(err);
+      const severity = serverErrorSeverity(message);
+      if (/guideline/i.test(message)) {
+        notify(
+          <>
+            {message}{' '}
+            <Link component={RouterLink} to="/guidelines" color="inherit">
+              View guidelines
+            </Link>
+          </>,
+          severity
+        );
+      } else {
+        notify(message, severity);
+      }
     }
   };
 
   return (
-    <Box
-      onSubmit={handleSubmit}
-      component="form"
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'column',
-        height: '60vh',
-        justifyContent: 'center',
-        gap: 4,
-      }}
-    >
+    <>
       <Box
+        onSubmit={handleSubmit}
+        component="form"
         sx={{
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
           alignItems: 'center',
+          flexDirection: 'column',
+          height: '60vh',
+          justifyContent: 'center',
+          gap: 4,
         }}
       >
-        <TextField
-          name="title"
-          id="title"
-          label="Name your experience (optional)"
-          fullWidth
-          multiline
-          variant="outlined"
-          sx={{ width: '25vw', mb: 3 }}
-        />
-        <TextField
-          name="description"
-          id="description"
-          label="Describe your experience"
-          fullWidth
-          multiline
-          variant="outlined"
-          error={descriptionError}
-          helperText={descriptionErrorMessage}
-          sx={{ width: '25vw' }}
-        />
-      </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-          >
-            Upload files
-            <VisuallyHiddenInput
-              type="file"
-              name="document"
-              id="document"
-              onChange={event => {
-                setFileHolder(event.target.files[0]);
-              }}
-            />
-          </Button>
-          {fileHolder && (
-            <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{fileHolder.name}</Box>
-          )}
-        </Box>
-        <FormHelperText
+        <Box
           sx={{
-            color: 'orange',
-            fontWeight: 500,
-            fontSize: 14,
-            mt: 0.5,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
-          A document/image to show proof of your post will go a long way.
-          <br /> Without one your post will have a warning label attached. Learn More
-        </FormHelperText>
+          <TextField
+            name="title"
+            id="title"
+            label="Name your experience (optional)"
+            fullWidth
+            multiline
+            variant="outlined"
+            sx={{ width: '25vw', mb: 3 }}
+          />
+          <TextField
+            name="description"
+            id="description"
+            label="Describe your experience"
+            fullWidth
+            multiline
+            variant="outlined"
+            error={descriptionError}
+            helperText={descriptionErrorMessage}
+            sx={{ width: '25vw' }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload files
+              <VisuallyHiddenInput
+                type="file"
+                name="document"
+                id="document"
+                onChange={event => {
+                  setFileHolder(event.target.files[0]);
+                }}
+              />
+            </Button>
+            {fileHolder && (
+              <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{fileHolder.name}</Box>
+            )}
+          </Box>
+          <FormHelperText
+            sx={{
+              color: 'orange',
+              fontWeight: 500,
+              fontSize: 14,
+              mt: 0.5,
+            }}
+          >
+            A document/image to show proof of your post will go a long way.
+            <br /> Without one your post will have a warning label attached. Learn More
+          </FormHelperText>
+        </Box>
+        <Box>
+          <PostButton text="Post" />
+        </Box>
       </Box>
-      <Box>
-        <PostButton text="Post" />
-      </Box>
-    </Box>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={closeNotification}
+      />
+    </>
   );
 }

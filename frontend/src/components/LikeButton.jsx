@@ -4,12 +4,12 @@ import { postLike } from '../api/api';
 import { useState } from 'react';
 
 const LikeButton = props => {
-  const { sx, postId } = props;
-  const [likes, setLikes] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const { sx, postId, initialCount = 0, initialLiked = false } = props;
+  const [likes, setLikes] = useState(initialCount);
+  const [liked, setLiked] = useState(initialLiked);
 
   const handleLike = () => {
-    postLike({ postId: postId }, localStorage.getItem('token'))
+    postLike({ postId: postId })
       .then(res => {
         if (res.data.liked) {
           setLikes(prev => prev + 1);

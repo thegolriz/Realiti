@@ -5,10 +5,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
-from werkzeug.security import check_password_hash, generate_password_hash
-
 from website import db
 from website.models import User
+from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
 auth_routes = Blueprint("auth_routes", __name__)
 
@@ -23,7 +22,16 @@ def login_api():
 
     user = User.query.filter_by(email=email).first()
 
-    if user and check_password_hash(user.password, password):
+    if user:
+        password_matches = verify_password(user.password, password)
+        if password_matches and needs_rehash(user.password):
+            user.password = hash_password(password)
+            db.session.commit()
+    else:
+        verify_password(DUMMY_HASH, password)
+        password_matches = False
+
+    if user and password_matches:
         access_token = create_access_token(identity=str(user.id))
         refresh_token = create_refresh_token(identity=str(user.id))
         return (
@@ -86,7 +94,7 @@ def signup_api():
     existing = User.query.filter_by(email=email).first()
     if existing:
         return jsonify({"error": "email in use"}), 400
-    password = generate_password_hash(password, method="scrypt", salt_length=16)
+    password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
     )

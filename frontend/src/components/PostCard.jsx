@@ -6,7 +6,17 @@ import ReplyButton from './ReplyButton';
 import ReplyCard from './ReplyCard';
 import { getReplies } from '../api/api';
 
-const PostCard = ({ postTitle, profilePic, userName, postBody, postId }) => {
+const PostCard = ({
+  postTitle,
+  profilePic,
+  userName,
+  postBody,
+  postId,
+  likeCount,
+  liked,
+  dislikeCount,
+  disliked,
+}) => {
   const [replies, setReplies] = useState([]);
 
   const fetchReplies = useCallback(() => {
@@ -42,8 +52,8 @@ const PostCard = ({ postTitle, profilePic, userName, postBody, postId }) => {
           </Box>
         </Stack>
         <Box sx={{ mt: 1, alignSelf: 'flex-start', display: 'flex' }}>
-          <LikeButton postId={postId} />
-          <DislikeButton postId={postId} />
+          <LikeButton postId={postId} initialCount={likeCount} initialLiked={liked} />
+          <DislikeButton postId={postId} initialCount={dislikeCount} initialDisliked={disliked} />
           <ReplyButton postId={postId} onReplySubmitted={fetchReplies} />
         </Box>
       </Box>

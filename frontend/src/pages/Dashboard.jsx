@@ -1,5 +1,5 @@
 import NavBar from '../components/NavBar.jsx';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, CircularProgress } from '@mui/material';
 import PostCard from '../components/PostCard.jsx';
 import { useState, useEffect } from 'react';
 import api from '../api/api.js';
@@ -29,6 +29,10 @@ const Dashboard = () => {
       postId={data.id}
       userName={data.name}
       postBody={data.description}
+      likeCount={data.likes}
+      liked={data.liked}
+      dislikeCount={data.dislikes}
+      disliked={data.disliked}
     />
   ));
   return (
@@ -37,7 +41,7 @@ const Dashboard = () => {
       <Box sx={{ width: '50%', margin: '0 auto' }}>
         <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
           <CreatePostButton />
-          {listPosts}
+          {loading ? <CircularProgress sx={{ mt: 4 }} /> : listPosts}
         </Stack>
       </Box>
     </Box>

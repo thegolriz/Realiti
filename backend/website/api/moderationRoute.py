@@ -62,27 +62,34 @@ def normalize(text):
     return text
 
 
+REASON_INAPPROPRIATE = "inappropriate"
+REASON_GUIDELINES = "guidelines"
+
+
+def _classify(text):
+    if not text:
+        return None
+    normalized = normalize(text)
+    if re.search(r"([a-zA-Z]\s){3,}", normalized):
+        return REASON_GUIDELINES
+    if profanity.contains_profanity(text) or profanity.contains_profanity(normalized):
+        # Leetspeak (text relies on substituted characters) is an evasion
+        # attempt rather than plainly inappropriate content.
+        if text != normalized:
+            return REASON_GUIDELINES
+        return REASON_INAPPROPRIATE
+    return None
+
+
 def regex_check(title, description):
-    description = normalize(description)
+    reasons = (_classify(title), _classify(description))
+    if REASON_INAPPROPRIATE in reasons:
+        return REASON_INAPPROPRIATE
+    if REASON_GUIDELINES in reasons:
+        return REASON_GUIDELINES
     if title:
-        title = normalize(title)
-        if profanity.contains_profanity(title) or profanity.contains_profanity(
-            description
-        ):
-            return False
-        if re.search(r"([a-zA-Z]\s){3,}", title):
-            return False
-        if re.search(r"([a-zA-Z]\s){3,}", description):
-            return False
-        # at this point we send data to claude
         claude_text_check(title)
-        return True
-    else:
-        if profanity.contains_profanity(description):
-            return False
-        if re.search(r"([a-zA-Z]\s){3,}", description):
-            return False
-        return True
+    return None
 
 
 def claude_text_check(text):

@@ -12,6 +12,11 @@ import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { signup } from '../api/api.js';
+import Notification, {
+  useNotification,
+  getServerError,
+  serverErrorSeverity,
+} from '../components/Notification.jsx';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -57,12 +62,11 @@ export default function SignUp(props) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const { notification, notify, closeNotification } = useNotification();
 
   const validateInputs = () => {
-    console.log('clikc');
     const email = document.getElementById('email');
     const password = document.getElementById('password');
     const first_name = document.getElementById('first_name');
@@ -70,10 +74,10 @@ export default function SignUp(props) {
 
     let isValid = true;
 
-    console.log('this is what isValid is ', isValid);
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
       setEmailErrorMessage('Please enter a valid email address.');
+      notify('Please enter a valid email address.', 'warning');
       isValid = false;
     } else {
       setEmailError(false);
@@ -82,58 +86,48 @@ export default function SignUp(props) {
 
     if (!password.value || password.value.length < 8) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 8 characters long.');
+      notify('Password must be at least 8 characters long.', 'warning');
       isValid = false;
     } else {
       setPasswordError(false);
-      setPasswordErrorMessage('');
     }
 
     if (!first_name.value || first_name.value.length < 1) {
       setNameError(true);
       setNameErrorMessage('Name is required.');
+      notify('First name is required.', 'warning');
       isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage('');
-    }
-    if (!last_name.value || last_name.value.length < 1) {
+    } else if (!last_name.value || last_name.value.length < 1) {
       setNameError(true);
       setNameErrorMessage('Name is required.');
+      notify('Last name is required.', 'warning');
       isValid = false;
     } else {
       setNameError(false);
       setNameErrorMessage('');
     }
-    console.log('this is what isValid is ', isValid);
 
     return isValid;
   };
 
   const handleSubmit = event => {
-    console.log('here');
     event.preventDefault();
-    if (nameError || emailError || passwordError) {
+    if (!validateInputs()) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      first_name: data.get('first_name'),
-      last_name: data.get('last_name'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
     signup({
       first_name: data.get('first_name'),
       last_name: data.get('last_name'),
       email: data.get('email'),
       password: data.get('password'),
     })
-      .then(response => {
-        console.log(response.data);
+      .then(() => {
+        notify('Account created! You can now sign in.', 'success');
       })
       .catch(err => {
-        console.error(err);
+        const message = getServerError(err);
+        notify(message, serverErrorSeverity(message));
       });
   };
 
@@ -211,16 +205,21 @@ export default function SignUp(props) {
                 autoComplete="new-password"
                 variant="outlined"
                 error={passwordError}
-                helperText={passwordErrorMessage}
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
-            <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
+            <Button type="submit" fullWidth variant="contained">
               Sign up
             </Button>
           </Box>
         </Card>
       </SignUpContainer>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={closeNotification}
+      />
     </AppTheme>
   );
 }
