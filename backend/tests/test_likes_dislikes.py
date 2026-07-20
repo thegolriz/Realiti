@@ -1,3 +1,6 @@
+"""Tests for the post like and dislike routes."""
+
+
 def test_like_post(client, auth_headers, post_id):
     response = client.post("/api/like", json={"postId": post_id}, headers=auth_headers)
     assert response.status_code == 200

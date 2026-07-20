@@ -3,12 +3,18 @@ import { Box, Stack, CircularProgress } from '@mui/material';
 import PostCard from '../components/PostCard.jsx';
 import { useState, useEffect } from 'react';
 import api from '../api/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import CreatePostButton from '../components/CreatePostButton.jsx';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
+  const { bootstrapping, token } = useAuth();
   useEffect(() => {
+    // Wait for the on-load refresh before fetching so auth state is settled.
+    if (bootstrapping) {
+      return;
+    }
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -20,7 +26,7 @@ const Dashboard = () => {
       setLoading(false);
     };
     fetchData();
-  }, []);
+  }, [bootstrapping, token]);
   console.log('Posts here\n', posts);
   const listPosts = posts.map(data => (
     <PostCard

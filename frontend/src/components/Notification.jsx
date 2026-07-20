@@ -26,19 +26,41 @@ export default function Notification({ open, message, severity = 'error', onClos
 }
 
 // Small hook so each page can fire popups without repeating boilerplate.
+// Calling notify() more than once queues each message as its own popup
+// instead of one overwriting another, so simultaneous issues (e.g. a title
+// problem and a description problem) each get a separate, readable Snackbar.
+const CLOSE_TRANSITION_MS = 300;
+
 export function useNotification() {
   const [notification, setNotification] = React.useState({
     open: false,
     message: '',
     severity: 'error',
   });
+  const queueRef = React.useRef([]);
+  const advancingRef = React.useRef(false);
+
+  const showNext = () => {
+    if (queueRef.current.length === 0) {
+      advancingRef.current = false;
+      return;
+    }
+    const next = queueRef.current.shift();
+    setNotification({ open: true, ...next });
+  };
 
   const notify = (message, severity = 'error') => {
-    setNotification({ open: true, message, severity });
+    queueRef.current.push({ message, severity });
+    if (!advancingRef.current) {
+      advancingRef.current = true;
+      showNext();
+    }
   };
 
   const closeNotification = () => {
     setNotification(prev => ({ ...prev, open: false }));
+    // Wait for the Snackbar's exit transition before showing the next one.
+    setTimeout(showNext, CLOSE_TRANSITION_MS);
   };
 
   return { notification, notify, closeNotification };

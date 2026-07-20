@@ -1,3 +1,5 @@
+"""Shared pytest fixtures and test environment setup."""
+
 import os
 
 import pytest
@@ -5,8 +7,21 @@ import pytest
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key")
 os.environ.setdefault("SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
+# Claude client is constructed at import; a dummy key lets tests import
+# claudeModeration without hitting the network.
+os.environ.setdefault("ANTHROPIC_API_KEY", "test-anthropic-key")
 
 from website import create_app, db  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _offline_claude(monkeypatch):
+    # Neutralize the route's Claude call so post-creating tests stay offline
+    # (no wasted API round-trips, no billing if a real key is in the env).
+    # Tests that need to observe it can override this with their own patch.
+    monkeypatch.setattr(
+        "website.api.postRoutes.run_claude_checks", lambda *a, **k: None
+    )
 
 
 @pytest.fixture

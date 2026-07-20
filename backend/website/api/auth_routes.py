@@ -4,6 +4,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
     jwt_required,
+    set_refresh_cookies,
+    unset_jwt_cookies,
 )
 from website import db
 from website.models import User
@@ -34,16 +36,10 @@ def login_api():
     if user and password_matches:
         access_token = create_access_token(identity=str(user.id))
         refresh_token = create_refresh_token(identity=str(user.id))
-        return (
-            jsonify(
-                {
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                    "expires in": 3600,
-                }
-            ),
-            200,
-        )
+        # Refresh token goes in an httpOnly cookie, not the body.
+        resp = jsonify({"access_token": access_token})
+        set_refresh_cookies(resp, refresh_token)
+        return resp, 200
     else:
         return jsonify({"error": "Invalid email or password"}), 400
 
@@ -68,7 +64,10 @@ def refresh():
 
 @auth_routes.route("/logout", methods=["DELETE", "POST"])
 def logout_api():
-    return jsonify({"message": "Logout endpoint"}), 200
+    # Server has to clear the httpOnly refresh cookie; the client can't.
+    resp = jsonify({"message": "logged out"})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 
 @auth_routes.route("/signup", methods=["POST"])

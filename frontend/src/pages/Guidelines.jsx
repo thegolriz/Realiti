@@ -7,7 +7,7 @@ import NavBar from '../components/NavBar.jsx';
 const SECTIONS = [
   {
     title: 'Be authentic',
-    body: 'Share real experiences in your own words. Posts that disguise their content — leetspeak, spaced-out letters, or other attempts to slip past our filters — do not meet our guidelines.',
+    body: 'Share real experiences in your own words. Posts that disguise their content: leetspeak, spaced-out letters, or other attempts to slip past our filters, do not meet our guidelines.',
     items: [],
   },
   {
@@ -47,7 +47,7 @@ export default function Guidelines(props) {
           Community Guidelines
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Draft — these guidelines are still being finalized and may change.
+          Draft, these guidelines are still being finalized and may change.
         </Typography>
 
         {SECTIONS.map(section => (

@@ -1,32 +1,56 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  getAccessToken,
+  setAccessToken,
+  clearAccessToken,
+  subscribe,
+} from '../api/authStore';
+import { logout as apiLogout, refresh as apiRefresh } from '../api/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [token, setToken] = useState(getAccessToken());
+  // True until the on-load refresh settles, so consumers can wait for auth.
+  const [bootstrapping, setBootstrapping] = useState(true);
 
-  // Keep state in sync if the token changes in another tab.
+  useEffect(() => subscribe(setToken), []);
+
+  // Mint a fresh access token from the refresh cookie so a reload stays signed
+  // in. If it fails, the user is simply logged out.
   useEffect(() => {
-    const onStorage = event => {
-      if (event.key === 'token') {
-        setToken(event.newValue);
-      }
+    let active = true;
+    apiRefresh()
+      .then(newToken => {
+        if (active && newToken) {
+          setAccessToken(newToken);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) {
+          setBootstrapping(false);
+        }
+      });
+    return () => {
+      active = false;
     };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const login = useCallback(newToken => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
+    setAccessToken(newToken);
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setToken(null);
+  const logout = useCallback(async () => {
+    try {
+      await apiLogout(); // clears the refresh cookie server-side
+    } catch (err) {
+      console.error(err);
+    }
+    clearAccessToken();
   }, []);
 
-  const value = { token, isLoggedIn: !!token, login, logout };
+  const value = { token, isLoggedIn: !!token, bootstrapping, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

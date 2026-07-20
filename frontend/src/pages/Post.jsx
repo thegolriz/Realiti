@@ -44,6 +44,23 @@ export default function Post(props) {
     return true;
   };
 
+  const notifyServerMessage = message => {
+    const severity = serverErrorSeverity(message);
+    if (/guideline/i.test(message)) {
+      notify(
+        <>
+          {message}{' '}
+          <Link component={RouterLink} to="/guidelines" color="inherit">
+            View guidelines
+          </Link>
+        </>,
+        severity
+      );
+    } else {
+      notify(message, severity);
+    }
+  };
+
   const handleSubmit = async event => {
     event.preventDefault();
     if (!validateInputs()) {
@@ -62,20 +79,13 @@ export default function Post(props) {
       await createPost({ title, description, document: documentUrl });
       closeProp && closeProp();
     } catch (err) {
-      const message = getServerError(err);
-      const severity = serverErrorSeverity(message);
-      if (/guideline/i.test(message)) {
-        notify(
-          <>
-            {message}{' '}
-            <Link component={RouterLink} to="/guidelines" color="inherit">
-              View guidelines
-            </Link>
-          </>,
-          severity
-        );
+      // Moderation failures can flag the title and description separately;
+      // surface each as its own popup instead of one merged message.
+      const errors = err?.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0) {
+        errors.forEach(notifyServerMessage);
       } else {
-        notify(message, severity);
+        notifyServerMessage(getServerError(err));
       }
     }
   };
