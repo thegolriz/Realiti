@@ -13,8 +13,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const MENU_ITEMS = [
+  { label: 'Home', to: '/' },
   { label: 'Account dashboard', to: '/account' },
   { label: 'Support', to: '/support' },
   { label: 'About', to: '/about' },
@@ -42,12 +44,12 @@ export default function ButtonAppBar() {
 
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-evenly' }}>
-      <AppBar position="absolute" sx={{ backgroundColor: 'white' }}>
+      <AppBar position="absolute" sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
         <Toolbar>
           <IconButton
             size="large"
             edge="start"
-            color="black"
+            color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
             onClick={() => setMenuOpen(true)}
@@ -81,20 +83,26 @@ export default function ButtonAppBar() {
           <Typography
             variant="h6"
             component="div"
-            sx={{ flexGrow: 1, color: 'black', textAlign: 'center' }}
+            onClick={() => navigate('/')}
+            sx={{
+              flexGrow: 1,
+              color: 'text.primary',
+              textAlign: 'center',
+              cursor: 'pointer',
+              '&:hover': { opacity: 0.7 },
+            }}
           >
             Realiti
           </Typography>
+          <ColorModeIconDropdown sx={{ mr: 1 }} />
           <Button
             onClick={handleAuthClick}
             variant="contained"
             sx={{
-              color: 'white',
-              backgroundColor: '#313033 ',
-              borderColor: '#313033 ',
+              color: 'background.paper',
+              bgcolor: 'text.primary',
               '&:hover': {
-                color: 'grey',
-                borderColor: 'grey',
+                bgcolor: 'text.secondary',
               },
             }}
           >

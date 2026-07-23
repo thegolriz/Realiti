@@ -51,7 +51,15 @@ const PostCard = ({
             <Typography>{postBody}</Typography>
           </Box>
         </Stack>
-        <Box sx={{ mt: 1, alignSelf: 'flex-start', display: 'flex' }}>
+        <Box
+          sx={{
+            mt: 1,
+            alignSelf: 'flex-start',
+            display: 'flex',
+            gap: 1,
+            alignItems: 'center',
+          }}
+        >
           <LikeButton postId={postId} initialCount={likeCount} initialLiked={liked} />
           <DislikeButton postId={postId} initialCount={dislikeCount} initialDisliked={disliked} />
           <ReplyButton postId={postId} onReplySubmitted={fetchReplies} />

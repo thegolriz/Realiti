@@ -25,7 +25,7 @@ const DislikeButton = props => {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <Typography>{dislikes > 0 ? dislikes : ''}</Typography>
       <IconButton sx={{ ...sx }} onClick={handleDislike}>
         <BungalowIcon sx={{ color: disliked ? 'red' : 'inherit', transform: 'rotate(180deg)' }} />

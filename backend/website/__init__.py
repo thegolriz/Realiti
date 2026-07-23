@@ -65,6 +65,14 @@ def create_app():
     app.register_blueprint(postLike, url_prefix="/api")
     app.register_blueprint(postDislike, url_prefix="/api")
     app.register_blueprint(repliesRoutes, url_prefix="/api")
-    from .models import Post, PostDislikes, PostLikes, Replies, User  # noqa: F401
+    from .models import (  # noqa: F401
+        Post,
+        PostDislikes,
+        PostLikes,
+        Realtor,
+        Replies,
+        Report,
+        User,
+    )
 
     return app

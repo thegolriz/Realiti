@@ -25,7 +25,7 @@ const LikeButton = props => {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       <Typography>{likes > 0 ? likes : ''}</Typography>
       <IconButton sx={{ ...sx }} onClick={handleLike}>
         <BungalowIcon sx={{ color: liked ? 'orange' : 'inherit' }} />
