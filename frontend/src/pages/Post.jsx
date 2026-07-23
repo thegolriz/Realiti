@@ -1,7 +1,8 @@
-import { TextField, Box, Button, FormHelperText, Link } from '@mui/material';
+import { TextField, Box, Button, FormHelperText, Link, IconButton } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
 import { createPost, upload } from '../api/api.js';
@@ -29,7 +30,26 @@ export default function Post(props) {
   const [descriptionError, setDescriptionError] = React.useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
   const [fileHolder, setFileHolder] = React.useState();
+  const [submitting, setSubmitting] = React.useState(false);
+  const fileInputRef = React.useRef(null);
+  const submittingRef = React.useRef(false);
+  const mountedRef = React.useRef(true);
   const { notification, notify, closeNotification } = useNotification();
+
+  React.useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    []
+  );
+
+  const handleRemoveFile = () => {
+    setFileHolder(undefined);
+    // Reset the input so re-selecting the same file still fires onChange.
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const validateInputs = () => {
     const description = document.getElementById('description');
@@ -63,11 +83,17 @@ export default function Post(props) {
 
   const handleSubmit = async event => {
     event.preventDefault();
+    // Block re-entry so rapid clicks can't fire multiple create requests.
+    if (submittingRef.current) {
+      return;
+    }
     if (!validateInputs()) {
       return;
     }
     const title = event.currentTarget.title.value;
     const description = event.currentTarget.description.value;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       let documentUrl = null;
       if (fileHolder) {
@@ -86,6 +112,11 @@ export default function Post(props) {
         errors.forEach(notifyServerMessage);
       } else {
         notifyServerMessage(getServerError(err));
+      }
+    } finally {
+      submittingRef.current = false;
+      if (mountedRef.current) {
+        setSubmitting(false);
       }
     }
   };
@@ -110,27 +141,29 @@ export default function Post(props) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
+            width: '25vw',
           }}
         >
           <TextField
             name="title"
             id="title"
-            label="Name your experience (optional)"
+            placeholder="Name your experience (optional)"
             fullWidth
             multiline
             variant="outlined"
-            sx={{ width: '25vw', mb: 3 }}
+            sx={{ mb: 3, '& .MuiOutlinedInput-root': { height: 'auto' } }}
           />
           <TextField
             name="description"
             id="description"
-            label="Describe your experience"
+            placeholder="Describe your experience"
             fullWidth
             multiline
+            minRows={4}
             variant="outlined"
             error={descriptionError}
             helperText={descriptionErrorMessage}
-            sx={{ width: '25vw' }}
+            sx={{ '& .MuiOutlinedInput-root': { height: 'auto' } }}
           />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -147,13 +180,20 @@ export default function Post(props) {
                 type="file"
                 name="document"
                 id="document"
+                accept="image/*,application/pdf"
+                ref={fileInputRef}
                 onChange={event => {
                   setFileHolder(event.target.files[0]);
                 }}
               />
             </Button>
             {fileHolder && (
-              <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{fileHolder.name}</Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ fontSize: 13, color: 'text.secondary' }}>{fileHolder.name}</Box>
+                <IconButton size="small" aria-label="remove file" onClick={handleRemoveFile}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
             )}
           </Box>
           <FormHelperText
@@ -166,10 +206,11 @@ export default function Post(props) {
           >
             A document/image to show proof of your post will go a long way.
             <br /> Without one your post will have a warning label attached. Learn More
+            <br /> Accepted files: images (JPEG, PNG, and similar) and PDF.
           </FormHelperText>
         </Box>
         <Box>
-          <PostButton text="Post" />
+          <PostButton text={submitting ? 'Posting...' : 'Post'} disabled={submitting} />
         </Box>
       </Box>
       <Notification

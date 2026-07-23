@@ -103,6 +103,41 @@ def signup_api():
     return jsonify({"message": "account created"}), 201
 
 
+@auth_routes.route("/account", methods=["GET"])
+@jwt_required()
+def get_account():
+    user = User.query.get(get_jwt_identity())
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+    return jsonify({"first_name": user.first_name, "email": user.email}), 200
+
+
+@auth_routes.route("/account/password", methods=["PATCH"])
+@jwt_required()
+def change_password():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    confirm_password = data.get("confirm_password")
+    if not current_password or not new_password or not confirm_password:
+        return jsonify({"error": "All password fields are required"}), 400
+
+    user = User.query.get(get_jwt_identity())
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    if not verify_password(user.password, current_password):
+        return jsonify({"error": "Current password is incorrect"}), 400
+    if new_password != confirm_password:
+        return jsonify({"error": "New passwords do not match"}), 400
+    if len(new_password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+
+    user.password = hash_password(new_password)
+    db.session.commit()
+    return jsonify({"message": "password updated"}), 200
+
+
 @auth_routes.route("/account", methods=["DELETE"])
 @jwt_required()
 def delete_account():

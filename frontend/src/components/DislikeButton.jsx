@@ -2,13 +2,21 @@ import { Typography, IconButton, Box } from '@mui/material';
 import BungalowIcon from '@mui/icons-material/Bungalow';
 import { postDislike } from '../api/api';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const DislikeButton = props => {
   const { sx, postId, initialCount = 0, initialDisliked = false } = props;
   const [dislikes, setDislikes] = useState(initialCount);
   const [disliked, setDisliked] = useState(initialDisliked);
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   const handleDislike = () => {
+    if (!isLoggedIn) {
+      navigate('/signin');
+      return;
+    }
     postDislike({ postId: postId })
       .then(res => {
         if (res.data.disliked) {

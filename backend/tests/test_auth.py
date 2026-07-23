@@ -131,6 +131,76 @@ def _register_and_login(client, email, password="12345678"):
     return {"Authorization": f"Bearer {resp.get_json()['access_token']}"}
 
 
+def test_get_account(client, auth_headers, userInfo):
+    response = client.get("/api/account", headers=auth_headers)
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["email"] == userInfo[0]
+    assert body["first_name"] == "Tester"
+
+
+def test_change_password_success(client, auth_headers, userInfo):
+    email, password = userInfo
+    response = client.patch(
+        "/api/account/password",
+        json={
+            "current_password": password,
+            "new_password": "newpass123",
+            "confirm_password": "newpass123",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+
+    old_login = client.post(
+        "/api/login", json={"email": email, "password": password}
+    )
+    assert old_login.status_code == 400
+    new_login = client.post(
+        "/api/login", json={"email": email, "password": "newpass123"}
+    )
+    assert new_login.status_code == 200
+
+
+def test_change_password_wrong_current(client, auth_headers):
+    response = client.patch(
+        "/api/account/password",
+        json={
+            "current_password": "wrongpass",
+            "new_password": "newpass123",
+            "confirm_password": "newpass123",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 400
+
+
+def test_change_password_mismatch(client, auth_headers, userInfo):
+    response = client.patch(
+        "/api/account/password",
+        json={
+            "current_password": userInfo[1],
+            "new_password": "newpass123",
+            "confirm_password": "different123",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 400
+
+
+def test_change_password_too_short(client, auth_headers, userInfo):
+    response = client.patch(
+        "/api/account/password",
+        json={
+            "current_password": userInfo[1],
+            "new_password": "short",
+            "confirm_password": "short",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 400
+
+
 def test_delete_account_requires_password(client, auth_headers):
     response = client.delete("/api/account", headers=auth_headers)
     assert response.status_code == 400

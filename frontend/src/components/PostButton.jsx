@@ -1,7 +1,7 @@
 import { Button, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 const PostButton = props => {
-  const { text, textSx, buttonSx, to, iconStart, iconEnd, onClick } = props;
+  const { text, textSx, buttonSx, to, iconStart, iconEnd, onClick, disabled } = props;
   return (
     <>
       <Button
@@ -11,6 +11,7 @@ const PostButton = props => {
         component={to ? RouterLink : 'button'}
         to={to}
         onClick={onClick}
+        disabled={disabled}
         sx={{
           height: '46px',
           width: 'auto',

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { IconButton, Dialog, Box, TextField, Button } from '@mui/material';
 import { postReply } from '../api/api';
+import { useAuth } from '../context/AuthContext.jsx';
 import Notification, {
   useNotification,
   getServerError,
@@ -13,6 +15,16 @@ const ReplyButton = ({ postId, onReplySubmitted }) => {
   const [replyText, setReplyText] = useState('');
   const [error, setError] = useState('');
   const { notification, notify, closeNotification } = useNotification();
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+
+  const handleOpen = () => {
+    if (!isLoggedIn) {
+      navigate('/signin');
+      return;
+    }
+    setOpen(true);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -39,21 +51,22 @@ const ReplyButton = ({ postId, onReplySubmitted }) => {
 
   return (
     <>
-      <IconButton onClick={() => setOpen(true)}>
+      <IconButton onClick={handleOpen}>
         <ReplyIcon />
       </IconButton>
       <Dialog open={open} onClose={handleClose}>
         <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 350 }}>
           <TextField
-            label="Write a reply"
+            placeholder="Write a reply"
             multiline
-            rows={3}
+            minRows={3}
             value={replyText}
             onChange={e => setReplyText(e.target.value)}
             error={!!error}
             helperText={error}
             fullWidth
             autoFocus
+            sx={{ '& .MuiOutlinedInput-root': { height: 'auto' } }}
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
             <Button onClick={handleClose}>Cancel</Button>

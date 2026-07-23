@@ -17,8 +17,8 @@ import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const MENU_ITEMS = [
   { label: 'Home', to: '/' },
-  { label: 'Account dashboard', to: '/account' },
-  { label: 'Support', to: '/support' },
+  { label: 'Account dashboard', to: '/account', requiresAuth: true },
+  { label: 'Support', to: '/support', requiresAuth: true },
   { label: 'About', to: '/about' },
   { label: 'Guidelines', to: '/guidelines' },
 ];
@@ -27,6 +27,7 @@ export default function ButtonAppBar() {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuItems = MENU_ITEMS.filter(item => isLoggedIn || !item.requiresAuth);
 
   const handleMenuNavigate = to => {
     setMenuOpen(false);
@@ -38,8 +39,10 @@ export default function ButtonAppBar() {
       navigate('/signin');
       return;
     }
-    await logout();
+    // Move to the public dashboard before clearing auth, so the ProtectedRoute
+    // guard doesn't bounce us to signin as isLoggedIn flips.
     navigate('/');
+    await logout();
   };
 
   return (
@@ -70,7 +73,7 @@ export default function ButtonAppBar() {
           >
             <Box sx={{ pt: 8 }} role="presentation">
               <List>
-                {MENU_ITEMS.map(item => (
+                {menuItems.map(item => (
                   <ListItem key={item.to} disablePadding>
                     <ListItemButton onClick={() => handleMenuNavigate(item.to)}>
                       <ListItemText primary={item.label} />
