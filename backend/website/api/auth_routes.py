@@ -109,7 +109,16 @@ def get_account():
     user = User.query.get(get_jwt_identity())
     if not user:
         return jsonify({"error": "user not found"}), 404
-    return jsonify({"first_name": user.first_name, "email": user.email}), 200
+    return (
+        jsonify(
+            {
+                "first_name": user.first_name,
+                "email": user.email,
+                "is_admin": user.is_admin,
+            }
+        ),
+        200,
+    )
 
 
 @auth_routes.route("/account/password", methods=["PATCH"])

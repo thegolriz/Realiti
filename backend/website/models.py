@@ -48,6 +48,10 @@ class Post(db.Model):
     # upheld report.
     verification_status = db.Column(db.String, default="none")
     verified_at = db.Column(db.DateTime, nullable=True)
+    # clean (public) | pending_review (Claude unsure, hidden, in admin queue) |
+    # removed (taken down by an admin). The public feed shows only "clean".
+    review_status = db.Column(db.String, default="clean")
+    review_reason = db.Column(db.Text, nullable=True)  # why it needs review
 
 
 class PostLikes(db.Model):

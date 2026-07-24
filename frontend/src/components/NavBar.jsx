@@ -17,6 +17,7 @@ import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const MENU_ITEMS = [
   { label: 'Home', to: '/' },
+  { label: 'Admin dashboard', to: '/admin', adminOnly: true },
   { label: 'Account dashboard', to: '/account', requiresAuth: true },
   { label: 'Support', to: '/support', requiresAuth: true },
   { label: 'About', to: '/about' },
@@ -25,9 +26,11 @@ const MENU_ITEMS = [
 
 export default function ButtonAppBar() {
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, isAdmin, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuItems = MENU_ITEMS.filter(item => isLoggedIn || !item.requiresAuth);
+  const menuItems = MENU_ITEMS.filter(
+    item => (isLoggedIn || !item.requiresAuth) && (!item.adminOnly || isAdmin)
+  );
 
   const handleMenuNavigate = to => {
     setMenuOpen(false);

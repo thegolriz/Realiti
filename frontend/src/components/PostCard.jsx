@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Stack } from '@mui/material';
 import LikeButton from './LikeButton';
 import DislikeButton from './DislikeButton';
 import ReplyButton from './ReplyButton';
+import ReportButton from './ReportButton';
 import ReplyCard from './ReplyCard';
 import { getReplies } from '../api/api';
 
@@ -63,6 +64,7 @@ const PostCard = ({
           <LikeButton postId={postId} initialCount={likeCount} initialLiked={liked} />
           <DislikeButton postId={postId} initialCount={dislikeCount} initialDisliked={disliked} />
           <ReplyButton postId={postId} onReplySubmitted={fetchReplies} />
+          <ReportButton postId={postId} />
         </Box>
       </Box>
       {replies.map(reply => (

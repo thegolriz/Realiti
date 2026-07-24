@@ -7,8 +7,10 @@ import Guidelines from './pages/Guidelines';
 import Account from './pages/Account';
 import Support from './pages/Support';
 import About from './pages/About';
+import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import AdminRoute from './components/AdminRoute.jsx';
 
 function App() {
   return (
@@ -44,6 +46,14 @@ function App() {
             }
           />
           <Route path="/about" element={<About />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -114,10 +114,19 @@ def post_api():
         # reasons are mapped above, rather than returning the raw reason.
         return jsonify({"error": verdict.reason}), 400
     if verdict and verdict.decision == DECISION_REVIEW:
-        # Claude was unsure: the post must not publish, but it isn't a hard
-        # rejection either. TODO: once the admin dashboard exists, persist the
-        # post with a pending-review status and route it there (verdict.reason
-        # is the context for the reviewer). For now it is simply held back.
+        # Claude was unsure: persist the post but keep it out of the public
+        # feed (review_status="pending_review") so an admin can approve or
+        # remove it. verdict.reason is the context shown to the reviewer.
+        held_post = Post(
+            user_id=user_id,
+            title=title,
+            description=description,
+            s3_url=document,
+            review_status="pending_review",
+            review_reason=verdict.reason,
+        )
+        db.session.add(held_post)
+        db.session.commit()
         return (
             jsonify(
                 {
@@ -142,7 +151,8 @@ def post_api():
 @jwt_required(optional=True)
 def post_get_api():
     user_id = get_jwt_identity()
-    postInfo = Post.query.all()
+    # Only "clean" posts are public; pending_review and removed stay hidden.
+    postInfo = Post.query.filter_by(review_status="clean").all()
     postList = []
     for post in postInfo:
         liked = False
