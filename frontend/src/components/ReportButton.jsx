@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
+import ReportOutlinedIcon from '@mui/icons-material/ReportOutlined';
 import {
   IconButton,
   Dialog,
@@ -72,8 +72,12 @@ export default function ReportButton({ postId }) {
 
   return (
     <>
-      <IconButton onClick={handleOpen} aria-label="report post">
-        <FlagOutlinedIcon />
+      <IconButton
+        onClick={handleOpen}
+        aria-label="report post"
+        sx={{ '&:hover': { color: 'warning.main' } }}
+      >
+        <ReportOutlinedIcon />
       </IconButton>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Report this post</DialogTitle>
