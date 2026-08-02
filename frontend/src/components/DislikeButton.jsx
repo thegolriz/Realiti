@@ -4,12 +4,12 @@ import { postDislike } from '../api/api';
 import { useState } from 'react';
 
 const DislikeButton = props => {
-  const { sx, postId } = props;
-  const [dislikes, setDislikes] = useState(0);
-  const [disliked, setDisliked] = useState(false);
+  const { sx, postId, initialCount = 0, initialDisliked = false } = props;
+  const [dislikes, setDislikes] = useState(initialCount);
+  const [disliked, setDisliked] = useState(initialDisliked);
 
   const handleDislike = () => {
-    postDislike({ postId: postId }, localStorage.getItem('token'))
+    postDislike({ postId: postId })
       .then(res => {
         if (res.data.disliked) {
           setDislikes(prev => prev + 1);

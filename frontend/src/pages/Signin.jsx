@@ -17,6 +17,12 @@ import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { login } from '../api/api.js';
+import Notification, {
+  useNotification,
+  getServerError,
+  serverErrorSeverity,
+} from '../components/Notification.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -60,73 +66,42 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 export default function SignIn(props) {
   const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  const { notification, notify, closeNotification } = useNotification();
+  const { login: setAuthToken } = useAuth();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = event => {
-    event.preventDefault();
-    if (emailError || passwordError) {
-      return;
-    }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    login({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
-      .then(response => {
-        console.log(response.data);
-        localStorage.setItem('token', response.data.access_token);
-        console.log(localStorage.getItem('token'));
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
-
-  // const navigateToDash = () =>{
-  //     return ();
-  // }
   const validateInputs = () => {
     const email = document.getElementById('email');
-    const password = document.getElementById('password');
 
     let isValid = true;
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
+      notify('Please enter a valid email address.', 'warning');
       isValid = false;
     } else {
       setEmailError(false);
-      setEmailErrorMessage('');
-    }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
-    if (isValid) {
-      navigate('/');
     }
     return isValid;
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    if (!validateInputs()) {
+      return;
+    }
+    const data = new FormData(event.currentTarget);
+    login({
+      email: data.get('email'),
+      password: data.get('password'),
+    })
+      .then(response => {
+        setAuthToken(response.data.access_token);
+        navigate('/');
+      })
+      .catch(err => {
+        const message = getServerError(err);
+        notify(message, serverErrorSeverity(message));
+      });
   };
 
   return (
@@ -157,7 +132,6 @@ export default function SignIn(props) {
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
                 error={emailError}
-                helperText={emailErrorMessage}
                 id="email"
                 type="email"
                 name="email"
@@ -173,8 +147,6 @@ export default function SignIn(props) {
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
                 name="password"
                 placeholder="••••••"
                 type="password"
@@ -184,7 +156,6 @@ export default function SignIn(props) {
                 required
                 fullWidth
                 variant="outlined"
-                color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControlLabel
@@ -192,7 +163,7 @@ export default function SignIn(props) {
               label="Remember me"
             />
             {/* <ForgotPassword open={open} handleClose={handleClose} /> */}
-            <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
+            <Button type="submit" fullWidth variant="contained">
               Sign in
             </Button>
             {/* <Link */}
@@ -217,6 +188,12 @@ export default function SignIn(props) {
           </Box>
         </Card>
       </SignInContainer>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={closeNotification}
+      />
     </AppTheme>
   );
 }

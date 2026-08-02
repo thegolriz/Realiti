@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -28,13 +29,27 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     # jwt configs bewloer
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 3600
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = 86400
+    # Short-lived access token (header), long-lived refresh token (httpOnly
+    # cookie scoped to /api/refresh).
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+    app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/refresh"
+    # Off in dev so the cookie works over http://localhost; set to true in prod.
+    app.config["JWT_COOKIE_SECURE"] = (
+        os.getenv("JWT_COOKIE_SECURE", "false").lower() == "true"
+    )
+    app.config["JWT_COOKIE_SAMESITE"] = "Lax"
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     migrate = Migrate(app, db)  # noqa: F841
     jwt = JWTManager(app)  # noqa: F841
-    CORS(app, origins=["http://localhost:3000", "https://yourfuturefrontend.com"])
+    CORS(
+        app,
+        origins=["http://localhost:3000", "https://yourfuturefrontend.com"],
+        supports_credentials=True,
+    )
     from website.api.auth_routes import auth_routes  # noqa: F401
     from website.api.postDislike import postDislike
     from website.api.postLike import postLike

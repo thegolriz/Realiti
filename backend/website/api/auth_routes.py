@@ -4,11 +4,12 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
     jwt_required,
+    set_refresh_cookies,
+    unset_jwt_cookies,
 )
-from werkzeug.security import check_password_hash, generate_password_hash
-
 from website import db
 from website.models import User
+from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
 auth_routes = Blueprint("auth_routes", __name__)
 
@@ -23,19 +24,22 @@ def login_api():
 
     user = User.query.filter_by(email=email).first()
 
-    if user and check_password_hash(user.password, password):
+    if user:
+        password_matches = verify_password(user.password, password)
+        if password_matches and needs_rehash(user.password):
+            user.password = hash_password(password)
+            db.session.commit()
+    else:
+        verify_password(DUMMY_HASH, password)
+        password_matches = False
+
+    if user and password_matches:
         access_token = create_access_token(identity=str(user.id))
         refresh_token = create_refresh_token(identity=str(user.id))
-        return (
-            jsonify(
-                {
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                    "expires in": 3600,
-                }
-            ),
-            200,
-        )
+        # Refresh token goes in an httpOnly cookie, not the body.
+        resp = jsonify({"access_token": access_token})
+        set_refresh_cookies(resp, refresh_token)
+        return resp, 200
     else:
         return jsonify({"error": "Invalid email or password"}), 400
 
@@ -60,7 +64,10 @@ def refresh():
 
 @auth_routes.route("/logout", methods=["DELETE", "POST"])
 def logout_api():
-    return jsonify({"message": "Logout endpoint"}), 200
+    # Server has to clear the httpOnly refresh cookie; the client can't.
+    resp = jsonify({"message": "logged out"})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 
 @auth_routes.route("/signup", methods=["POST"])
@@ -86,7 +93,7 @@ def signup_api():
     existing = User.query.filter_by(email=email).first()
     if existing:
         return jsonify({"error": "email in use"}), 400
-    password = generate_password_hash(password, method="scrypt", salt_length=16)
+    password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
     )

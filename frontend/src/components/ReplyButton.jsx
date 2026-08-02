@@ -2,11 +2,17 @@ import { useState } from 'react';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { IconButton, Dialog, Box, TextField, Button } from '@mui/material';
 import { postReply } from '../api/api';
+import Notification, {
+  useNotification,
+  getServerError,
+  serverErrorSeverity,
+} from './Notification.jsx';
 
 const ReplyButton = ({ postId, onReplySubmitted }) => {
   const [open, setOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [error, setError] = useState('');
+  const { notification, notify, closeNotification } = useNotification();
 
   const handleClose = () => {
     setOpen(false);
@@ -17,14 +23,18 @@ const ReplyButton = ({ postId, onReplySubmitted }) => {
   const handleSubmit = () => {
     if (!replyText.trim()) {
       setError('Reply cannot be empty');
+      notify('Reply cannot be empty.', 'warning');
       return;
     }
-    postReply({ postId, reply_text: replyText }, localStorage.getItem('token'))
+    postReply({ postId, reply_text: replyText })
       .then(() => {
         handleClose();
         onReplySubmitted?.();
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        const message = getServerError(err);
+        notify(message, serverErrorSeverity(message));
+      });
   };
 
   return (
@@ -53,6 +63,12 @@ const ReplyButton = ({ postId, onReplySubmitted }) => {
           </Box>
         </Box>
       </Dialog>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={closeNotification}
+      />
     </>
   );
 };

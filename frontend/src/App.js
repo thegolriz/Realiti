@@ -3,17 +3,28 @@ import Signin from './pages/Signin';
 import Post from './pages/Post';
 import Dashboard from './pages/Dashboard';
 import Signup from './pages/Signup';
+import Guidelines from './pages/Guidelines';
+import Account from './pages/Account';
+import Support from './pages/Support';
+import About from './pages/About';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/post" element={<Post />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/post" element={<Post />} />
+          <Route path="/guidelines" element={<Guidelines />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
