@@ -75,47 +75,50 @@ _OVERRIDE_SCOPE = (
 )
 _OVERRIDE_TARGET = r"(?:instructions?|prompts?|rules?|context|messages?)"
 
-PROMPT_INJECTION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in (
-    # Instruction override / context wipe
-    _OVERRIDE_VERBS + r"\s+" + _OVERRIDE_SCOPE + r"\s+" + _OVERRIDE_TARGET,
-    r"(?:ignore|disregard)\s+everything\s+(?:above|before|prior)",
-    r"new\s+instructions?\b",
-    r"override\s+(?:your|the|all)\s+"
-    r"(?:instructions?|rules?|guidelines?|restrictions?)",
-    r"bypass\s+(?:your|the|all)\s+(?:instructions?|rules?|guidelines?|"
-    r"restrictions?|filters?|moderation)",
-    r"from\s+now\s+on\s*,?\s+(?:you|ignore|act|respond)",
-    # Role / persona hijack
-    r"you\s*(?:are|'re)\s+now\s+(?:a|an|in)\b",
-    r"act\s+as\s+(?:if\s+you\s+(?:are|were)|a|an)\b",
-    r"pretend\s+(?:you\s*(?:are|'re)|to\s+be)\b",
-    r"roleplay\s+as\b",
-    r"simulate\s+(?:a|an|being)\b",
-    r"\bdan\s+mode\b",
-    r"do\s+anything\s+now\b",
-    r"developer\s+mode\b",
-    r"\bjailbreak(?:s|ing|ed)?\b",
-    r"(?:no|without\s+any)\s+(?:restrictions?|filters?|limitations?|"
-    r"censorship|rules?)\s*(?:apply|now|attached)?",
-    # System prompt exfiltration
-    r"reveal\s+(?:your|the)\s+(?:system\s+)?prompt",
-    r"(?:print|repeat|output|show)\s+(?:your|the)\s+(?:system\s+)?"
-    r"(?:prompt|instructions?)",
-    r"what\s+(?:are|were)\s+your\s+(?:initial\s+|original\s+)?instructions?",
-    # Conversation / role delimiter injection
-    r"^\s*(?:system|assistant|human|user)\s*:",
-    r"<\|?\s*(?:im_start|im_end|system|endoftext)\s*\|?>",
-    r"\[/?(?:inst|system)\]",
-    r"###\s*(?:system|instruction)",
-    # Trying to coerce a specific moderation outcome
-    r"(?:mark|flag|label|approve)\s+this\s+(?:post\s+)?as\s+"
-    r"(?:safe|approved|clean|appropriate)",
-    r"this\s+(?:post\s+)?(?:is\s+)?(?:not|isn't|isn’t)\s+"
-    r"(?:inappropriate|against\s+(?:the\s+)?guidelines)",
-    r"(?:always|you\s+must)\s+respond\s+with",
-    r"your\s+(?:next\s+)?response\s+must\s+(?:be|say)",
-    r"respond\s+only\s+with\s+['\"]",
-)]
+PROMPT_INJECTION_PATTERNS = [
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        # Instruction override / context wipe
+        _OVERRIDE_VERBS + r"\s+" + _OVERRIDE_SCOPE + r"\s+" + _OVERRIDE_TARGET,
+        r"(?:ignore|disregard)\s+everything\s+(?:above|before|prior)",
+        r"new\s+instructions?\b",
+        r"override\s+(?:your|the|all)\s+"
+        r"(?:instructions?|rules?|guidelines?|restrictions?)",
+        r"bypass\s+(?:your|the|all)\s+(?:instructions?|rules?|guidelines?|"
+        r"restrictions?|filters?|moderation)",
+        r"from\s+now\s+on\s*,?\s+(?:you|ignore|act|respond)",
+        # Role / persona hijack
+        r"you\s*(?:are|'re)\s+now\s+(?:a|an|in)\b",
+        r"act\s+as\s+(?:if\s+you\s+(?:are|were)|a|an)\b",
+        r"pretend\s+(?:you\s*(?:are|'re)|to\s+be)\b",
+        r"roleplay\s+as\b",
+        r"simulate\s+(?:a|an|being)\b",
+        r"\bdan\s+mode\b",
+        r"do\s+anything\s+now\b",
+        r"developer\s+mode\b",
+        r"\bjailbreak(?:s|ing|ed)?\b",
+        r"(?:no|without\s+any)\s+(?:restrictions?|filters?|limitations?|"
+        r"censorship|rules?)\s*(?:apply|now|attached)?",
+        # System prompt exfiltration
+        r"reveal\s+(?:your|the)\s+(?:system\s+)?prompt",
+        r"(?:print|repeat|output|show)\s+(?:your|the)\s+(?:system\s+)?"
+        r"(?:prompt|instructions?)",
+        r"what\s+(?:are|were)\s+your\s+(?:initial\s+|original\s+)?instructions?",
+        # Conversation / role delimiter injection
+        r"^\s*(?:system|assistant|human|user)\s*:",
+        r"<\|?\s*(?:im_start|im_end|system|endoftext)\s*\|?>",
+        r"\[/?(?:inst|system)\]",
+        r"###\s*(?:system|instruction)",
+        # Trying to coerce a specific moderation outcome
+        r"(?:mark|flag|label|approve)\s+this\s+(?:post\s+)?as\s+"
+        r"(?:safe|approved|clean|appropriate)",
+        r"this\s+(?:post\s+)?(?:is\s+)?(?:not|isn't|isn’t)\s+"
+        r"(?:inappropriate|against\s+(?:the\s+)?guidelines)",
+        r"(?:always|you\s+must)\s+respond\s+with",
+        r"your\s+(?:next\s+)?response\s+must\s+(?:be|say)",
+        r"respond\s+only\s+with\s+['\"]",
+    )
+]
 
 
 def _contains_prompt_injection(text):
@@ -135,11 +138,14 @@ with open(os.path.join(_DATA_DIR, "common_words.txt"), encoding="utf-8") as f:
 # symbols, so a word like "h3llo" or "$450k" is captured as one token.
 _TOKEN_PATTERN = re.compile(r"[\w@!|$+]+")
 
-_URL_PATTERNS = [re.compile(p, re.IGNORECASE) for p in (
-    r"https?://",
-    r"www\.[a-z0-9-]+\.[a-z]{2,}",
-    r"\b[a-z0-9-]{2,63}\.(?:com|net|org|io|co|biz|info|gov|edu|me|ly|xyz)\b",
-)]
+_URL_PATTERNS = [
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"https?://",
+        r"www\.[a-z0-9-]+\.[a-z]{2,}",
+        r"\b[a-z0-9-]{2,63}\.(?:com|net|org|io|co|biz|info|gov|edu|me|ly|xyz)\b",
+    )
+]
 
 
 def _contains_disguised_word(text):
