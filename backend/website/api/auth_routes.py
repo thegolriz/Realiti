@@ -7,8 +7,9 @@ from flask_jwt_extended import (
     set_refresh_cookies,
     unset_jwt_cookies,
 )
+
 from website import db
-from website.models import User
+from website.models import Post, PostDislikes, PostLikes, Replies, User
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
 auth_routes = Blueprint("auth_routes", __name__)
@@ -100,3 +101,110 @@ def signup_api():
     db.session.add(new_user)
     db.session.commit()
     return jsonify({"message": "account created"}), 201
+
+
+@auth_routes.route("/account", methods=["GET"])
+@jwt_required()
+def get_account():
+    user = User.query.get(get_jwt_identity())
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+    return (
+        jsonify(
+            {
+                "first_name": user.first_name,
+                "email": user.email,
+                "is_admin": user.is_admin,
+            }
+        ),
+        200,
+    )
+
+
+@auth_routes.route("/account/password", methods=["PATCH"])
+@jwt_required()
+def change_password():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    confirm_password = data.get("confirm_password")
+    if not current_password or not new_password or not confirm_password:
+        return jsonify({"error": "All password fields are required"}), 400
+
+    user = User.query.get(get_jwt_identity())
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    if not verify_password(user.password, current_password):
+        return jsonify({"error": "Current password is incorrect"}), 400
+    if new_password != confirm_password:
+        return jsonify({"error": "New passwords do not match"}), 400
+    if len(new_password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+
+    user.password = hash_password(new_password)
+    db.session.commit()
+    return jsonify({"message": "password updated"}), 200
+
+
+@auth_routes.route("/account", methods=["DELETE"])
+@jwt_required()
+def delete_account():
+    data = request.get_json(silent=True) or {}
+    password = data.get("password")
+    if not password:
+        return jsonify({"error": "Password required to delete account"}), 400
+
+    user = User.query.get(get_jwt_identity())
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    if not verify_password(user.password, password):
+        return jsonify({"error": "Invalid password"}), 400
+
+    uid = user.id
+    try:
+        # Deleting the user's posts also removes every reply/like/dislike on
+        # them (including other people's), since those rows can't outlive the
+        # post they hang off of.
+        post_ids = [p.id for p in Post.query.filter_by(user_id=uid).all()]
+        if post_ids:
+            Replies.query.filter(Replies.postId.in_(post_ids)).delete(
+                synchronize_session=False
+            )
+            PostLikes.query.filter(PostLikes.postId.in_(post_ids)).delete(
+                synchronize_session=False
+            )
+            PostDislikes.query.filter(PostDislikes.postId.in_(post_ids)).delete(
+                synchronize_session=False
+            )
+
+        # The user's own replies on other people's posts. Detach any child
+        # replies that point at them (those belong to other users, on other
+        # people's posts) so those threads survive with a null parent.
+        my_reply_ids = [r.id for r in Replies.query.filter_by(userReplied=uid).all()]
+        if my_reply_ids:
+            Replies.query.filter(Replies.parent_reply_id.in_(my_reply_ids)).update(
+                {Replies.parent_reply_id: None}, synchronize_session=False
+            )
+            Replies.query.filter_by(userReplied=uid).delete(synchronize_session=False)
+
+        # The user's likes/dislikes on other people's posts.
+        PostLikes.query.filter_by(userSentLike=uid).delete(synchronize_session=False)
+        PostDislikes.query.filter_by(userSentDislike=uid).delete(
+            synchronize_session=False
+        )
+
+        # Finally the user's posts, then the user record itself.
+        Post.query.filter_by(user_id=uid).delete(synchronize_session=False)
+        db.session.delete(user)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete account"}), 500
+
+    # The account is gone; clear the refresh cookie so no new tokens can be
+    # minted. The stateless access token stays valid until it expires (<=15m).
+    resp = jsonify({"message": "account deleted"})
+    unset_jwt_cookies(resp)
+    return resp, 200

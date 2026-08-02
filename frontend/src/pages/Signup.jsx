@@ -8,6 +8,8 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
@@ -211,6 +213,15 @@ export default function SignUp(props) {
             <Button type="submit" fullWidth variant="contained">
               Sign up
             </Button>
+          </Box>
+          <Divider>or</Divider>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography sx={{ textAlign: 'center' }}>
+              Already have an account?{' '}
+              <Link href="/signin" variant="body2" sx={{ alignSelf: 'center' }}>
+                Sign in
+              </Link>
+            </Typography>
           </Box>
         </Card>
       </SignUpContainer>

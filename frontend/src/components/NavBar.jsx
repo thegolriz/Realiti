@@ -13,18 +13,24 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const MENU_ITEMS = [
-  { label: 'Account dashboard', to: '/account' },
-  { label: 'Support', to: '/support' },
+  { label: 'Home', to: '/' },
+  { label: 'Admin dashboard', to: '/admin', adminOnly: true },
+  { label: 'Account dashboard', to: '/account', requiresAuth: true },
+  { label: 'Support', to: '/support', requiresAuth: true },
   { label: 'About', to: '/about' },
   { label: 'Guidelines', to: '/guidelines' },
 ];
 
 export default function ButtonAppBar() {
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, isAdmin, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuItems = MENU_ITEMS.filter(
+    item => (isLoggedIn || !item.requiresAuth) && (!item.adminOnly || isAdmin)
+  );
 
   const handleMenuNavigate = to => {
     setMenuOpen(false);
@@ -36,18 +42,20 @@ export default function ButtonAppBar() {
       navigate('/signin');
       return;
     }
-    await logout();
+    // Move to the public dashboard before clearing auth, so the ProtectedRoute
+    // guard doesn't bounce us to signin as isLoggedIn flips.
     navigate('/');
+    await logout();
   };
 
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-evenly' }}>
-      <AppBar position="absolute" sx={{ backgroundColor: 'white' }}>
+      <AppBar position="absolute" sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
         <Toolbar>
           <IconButton
             size="large"
             edge="start"
-            color="black"
+            color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
             onClick={() => setMenuOpen(true)}
@@ -68,7 +76,7 @@ export default function ButtonAppBar() {
           >
             <Box sx={{ pt: 8 }} role="presentation">
               <List>
-                {MENU_ITEMS.map(item => (
+                {menuItems.map(item => (
                   <ListItem key={item.to} disablePadding>
                     <ListItemButton onClick={() => handleMenuNavigate(item.to)}>
                       <ListItemText primary={item.label} />
@@ -81,20 +89,26 @@ export default function ButtonAppBar() {
           <Typography
             variant="h6"
             component="div"
-            sx={{ flexGrow: 1, color: 'black', textAlign: 'center' }}
+            onClick={() => navigate('/')}
+            sx={{
+              flexGrow: 1,
+              color: 'text.primary',
+              textAlign: 'center',
+              cursor: 'pointer',
+              '&:hover': { opacity: 0.7 },
+            }}
           >
             Realiti
           </Typography>
+          <ColorModeIconDropdown sx={{ mr: 1 }} />
           <Button
             onClick={handleAuthClick}
             variant="contained"
             sx={{
-              color: 'white',
-              backgroundColor: '#313033 ',
-              borderColor: '#313033 ',
+              color: 'background.paper',
+              bgcolor: 'text.primary',
               '&:hover': {
-                color: 'grey',
-                borderColor: 'grey',
+                bgcolor: 'text.secondary',
               },
             }}
           >

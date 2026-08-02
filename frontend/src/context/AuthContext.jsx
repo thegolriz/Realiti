@@ -1,11 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import {
-  getAccessToken,
-  setAccessToken,
-  clearAccessToken,
-  subscribe,
-} from '../api/authStore';
-import { logout as apiLogout, refresh as apiRefresh } from '../api/api';
+import { getAccessToken, setAccessToken, clearAccessToken, subscribe } from '../api/authStore';
+import { logout as apiLogout, refresh as apiRefresh, getAccount } from '../api/api';
 
 const AuthContext = createContext(null);
 
@@ -13,8 +8,42 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(getAccessToken());
   // True until the on-load refresh settles, so consumers can wait for auth.
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  // False while we're still fetching the profile to learn the admin flag, so
+  // an admin route can wait instead of bouncing a real admin mid-load.
+  const [adminResolved, setAdminResolved] = useState(false);
 
   useEffect(() => subscribe(setToken), []);
+
+  // Whenever the token changes, (re)load the profile to learn is_admin.
+  useEffect(() => {
+    if (!token) {
+      setIsAdmin(false);
+      setAdminResolved(true);
+      return;
+    }
+    let active = true;
+    setAdminResolved(false);
+    getAccount()
+      .then(res => {
+        if (active) {
+          setIsAdmin(!!res.data.is_admin);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setIsAdmin(false);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setAdminResolved(true);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
 
   // Mint a fresh access token from the refresh cookie so a reload stays signed
   // in. If it fails, the user is simply logged out.
@@ -50,7 +79,15 @@ export function AuthProvider({ children }) {
     clearAccessToken();
   }, []);
 
-  const value = { token, isLoggedIn: !!token, bootstrapping, login, logout };
+  const value = {
+    token,
+    isLoggedIn: !!token,
+    isAdmin,
+    adminResolved,
+    bootstrapping,
+    login,
+    logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

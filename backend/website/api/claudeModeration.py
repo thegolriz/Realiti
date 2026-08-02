@@ -7,7 +7,6 @@ import anthropic
 import boto3
 from botocore.config import Config
 
-
 # Three possible outcomes per check. Anything that isn't ALLOW keeps the post
 # from publishing. REVIEW is the "Claude is unsure" case: too risky to publish,
 # not clear enough to hard-block, so it will be routed to the admin dashboard
@@ -181,7 +180,10 @@ def check_media(s3_object):
             return _OK
         content = [
             block,
-            {"type": "text", "text": "Classify the attached media per your instructions."},
+            {
+                "type": "text",
+                "text": "Classify the attached media per your instructions.",
+            },
         ]
         return _verdict(_MEDIA_SYSTEM, content)
     except Exception as exc:  # noqa: BLE001 - fail open, never block a post
