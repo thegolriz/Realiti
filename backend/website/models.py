@@ -25,9 +25,7 @@ class Realtor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     # The account that submitted the entry (often not the realtor themselves).
     added_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
-    created_at = db.Column(
-        db.DateTime, default=lambda: datetime.now(tz=timezone.utc)
-    )
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=timezone.utc))
     # The normalized (name, state) pair is what actually prevents duplicates;
     # the app-level lookup is only for a friendly get-or-create path.
     __table_args__ = (
@@ -90,7 +88,5 @@ class Report(db.Model):
     reason = db.Column(db.Text, nullable=False)
     evidence_url = db.Column(db.String, nullable=True)  # S3 proof
     status = db.Column(db.String, default="open")  # open | upheld | dismissed
-    created_at = db.Column(
-        db.DateTime, default=lambda: datetime.now(tz=timezone.utc)
-    )
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=timezone.utc))
     resolved_at = db.Column(db.DateTime, nullable=True)

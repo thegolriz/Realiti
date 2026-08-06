@@ -44,7 +44,7 @@ def create_app():
     app.config["JWT_COOKIE_CSRF_PROTECT"] = True
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
-    migrate = Migrate(app, db)  # noqa: F841
+    migrate = Migrate(app, db, compare_type=True)  # noqa: F841
     jwt = JWTManager(app)  # noqa: F841
     CORS(
         app,

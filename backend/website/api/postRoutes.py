@@ -94,8 +94,7 @@ def post_api():
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(
-        document.split("/")[-1]) if document else None
+    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
     # 1. Cheap regex screen on the text.
     title_reason, description_reason = regex_check(title, description)
     if title_reason or description_reason:
@@ -159,9 +158,7 @@ def post_get_api():
         disliked = False
         if user_id:
             liked = (
-                PostLikes.query.filter_by(
-                    postId=post.id, userSentLike=user_id
-                ).first()
+                PostLikes.query.filter_by(postId=post.id, userSentLike=user_id).first()
                 is not None
             )
             disliked = (

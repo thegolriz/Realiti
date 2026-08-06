@@ -96,14 +96,10 @@ def _verdict(system, content):
         max_tokens=1000,
         system=system,
         messages=[{"role": "user", "content": content}],
-        output_config={
-            "format": {"type": "json_schema", "schema": _VERDICT_SCHEMA}
-        },
+        output_config={"format": {"type": "json_schema", "schema": _VERDICT_SCHEMA}},
     )
     # With output_config the model returns the JSON verdict in a text block.
-    text = next(
-        (b.text for b in resp.content if b.type == "text"), None
-    )
+    text = next((b.text for b in resp.content if b.type == "text"), None)
     if text is None:
         raise ValueError("no text block in Claude moderation response")
     data = json.loads(text)
@@ -124,9 +120,7 @@ def _fetch_s3_bytes(s3_object):
         region_name=os.getenv("S3_REGION"),
         config=Config(signature_version="s3v4"),
     )
-    obj = s3_client.get_object(
-        Bucket=os.getenv("S3_BUCKET"), Key=s3_object
-    )
+    obj = s3_client.get_object(Bucket=os.getenv("S3_BUCKET"), Key=s3_object)
     return obj["Body"].read()
 
 
