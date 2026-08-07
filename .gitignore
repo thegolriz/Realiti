@@ -1,13 +1,21 @@
-# Operating System Files
-.DS_Store         # macOS specific
-Thumbs.db         # Windows specific
+
+# Operating system files
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
 
 # Node.js
 node_modules/
+npm-debug.log*
+yarn-error.log*
+.eslintcache
 
 # IDE and editor files
-.vscode/           # Visual Studio Code
-.idea/             # JetBrains (IntelliJ, PyCharm, etc.)
+# Visual Studio Code
+.vscode/
+# JetBrains (IntelliJ, PyCharm, etc.)
+.idea/
 *.sublime-workspace
 *.sublime-project
 
@@ -17,14 +25,33 @@ node_modules/
 # Environment files
 .env
 .env_dev
+.env.*
+
+# Secrets and credentials
+*.pem
+*.key
+.aws/
+
 # Build outputs
-/dist
-/build
-frontend/build/
+dist/
+build/
+coverage/
 
 # Temporary files
 *.tmp
 
-#important files to hide
-instance/
+# Python
 __pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Local databases and Flask instance config
+instance/
+*.db
+*.sqlite3

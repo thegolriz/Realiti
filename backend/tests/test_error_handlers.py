@@ -3,9 +3,7 @@
 
 def test_malformed_json_body_returns_400_json(client):
     # Valid JSON content type, broken body -> werkzeug BadRequest -> our JSON.
-    resp = client.post(
-        "/api/login", data="not json", content_type="application/json"
-    )
+    resp = client.post("/api/login", data="not json", content_type="application/json")
     assert resp.status_code == 400
     assert resp.get_json()["error"]
 

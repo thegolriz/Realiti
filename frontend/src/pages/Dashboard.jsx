@@ -35,6 +35,7 @@ const Dashboard = props => {
       postTitle={data.title}
       key={data.id}
       postId={data.id}
+      userId={data.userId}
       userName={data.name}
       postBody={data.description}
       likeCount={data.likes}

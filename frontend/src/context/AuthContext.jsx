@@ -9,6 +9,9 @@ export function AuthProvider({ children }) {
   // True until the on-load refresh settles, so consumers can wait for auth.
   const [bootstrapping, setBootstrapping] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  // The signed-in user's own id, so a page can tell "this is me" apart from
+  // "this is someone else". Null while logged out or still resolving.
+  const [userId, setUserId] = useState(null);
   // False while we're still fetching the profile to learn the admin flag, so
   // an admin route can wait instead of bouncing a real admin mid-load.
   const [adminResolved, setAdminResolved] = useState(false);
@@ -19,6 +22,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!token) {
       setIsAdmin(false);
+      setUserId(null);
       setAdminResolved(true);
       return;
     }
@@ -28,11 +32,13 @@ export function AuthProvider({ children }) {
       .then(res => {
         if (active) {
           setIsAdmin(!!res.data.is_admin);
+          setUserId(res.data.id ?? null);
         }
       })
       .catch(() => {
         if (active) {
           setIsAdmin(false);
+          setUserId(null);
         }
       })
       .finally(() => {
@@ -83,6 +89,7 @@ export function AuthProvider({ children }) {
     token,
     isLoggedIn: !!token,
     isAdmin,
+    userId,
     adminResolved,
     bootstrapping,
     login,

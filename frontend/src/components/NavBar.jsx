@@ -13,11 +13,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
 
 const MENU_ITEMS = [
   { label: 'Home', to: '/' },
   { label: 'Admin dashboard', to: '/admin', adminOnly: true },
+  { label: 'Profile', to: '/profile/me', requiresAuth: true },
   { label: 'Account dashboard', to: '/account', requiresAuth: true },
   { label: 'Support', to: '/support', requiresAuth: true },
   { label: 'About', to: '/about' },
@@ -100,7 +100,6 @@ export default function ButtonAppBar() {
           >
             Realiti
           </Typography>
-          <ColorModeIconDropdown sx={{ mr: 1 }} />
           <Button
             onClick={handleAuthClick}
             variant="contained"

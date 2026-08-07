@@ -112,6 +112,7 @@ def get_account():
     return (
         jsonify(
             {
+                "id": user.id,
                 "first_name": user.first_name,
                 "email": user.email,
                 "is_admin": user.is_admin,

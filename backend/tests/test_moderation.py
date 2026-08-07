@@ -12,7 +12,6 @@ from website.api.moderationRoute import (
     regex_check,
 )
 
-
 # --- normalize ---
 
 

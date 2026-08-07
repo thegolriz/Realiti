@@ -1,6 +1,7 @@
-import { Box, Typography, Avatar, Stack } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
+import ProfileAvatar from './ProfileAvatar';
 
-const ReplyCard = ({ userName, replyText }) => {
+const ReplyCard = ({ userId, userName, replyText }) => {
   return (
     <Box
       sx={{
@@ -14,7 +15,11 @@ const ReplyCard = ({ userName, replyText }) => {
       }}
     >
       <Stack spacing={1} direction="row" alignItems="flex-start">
-        <Avatar sx={{ width: 26, height: 26, fontSize: 13 }} alt={userName} />
+        <ProfileAvatar
+          userId={userId}
+          userName={userName}
+          sx={{ width: 26, height: 26, fontSize: 13 }}
+        />
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.3 }}>
             {userName}

@@ -7,7 +7,7 @@ package-mode= false
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 Flask = "3.1.0"
 Flask-JWT-Extended = "4.7.1"
 Flask-Login = "0.6.3"

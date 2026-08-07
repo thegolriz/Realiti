@@ -23,8 +23,7 @@ def _cookie_value(response, name):
 
 def test_signup_success(client, userInfo):
     email, password = userInfo
-    response = client.post(
-        "/api/signup", json=_signup_payload(email, password))
+    response = client.post("/api/signup", json=_signup_payload(email, password))
     assert response.status_code == 201
     assert response.get_json()["message"] == "account created"
 
@@ -60,8 +59,7 @@ def test_login_success(client, userInfo):
     email, password = userInfo
     client.post("/api/signup", json=_signup_payload(email, password))
 
-    response = client.post(
-        "/api/login", json={"email": email, "password": password})
+    response = client.post("/api/login", json={"email": email, "password": password})
     assert response.status_code == 200
     body = response.get_json()
     assert "access_token" in body
@@ -72,8 +70,7 @@ def test_login_success(client, userInfo):
 def test_refresh_and_logout_flow(client, userInfo):
     email, password = userInfo
     client.post("/api/signup", json=_signup_payload(email, password))
-    login = client.post(
-        "/api/login", json={"email": email, "password": password})
+    login = client.post("/api/login", json={"email": email, "password": password})
     csrf = _cookie_value(login, "csrf_refresh_token")
     assert csrf
     refreshed = client.post("/api/refresh", headers={"X-CSRF-TOKEN": csrf})
@@ -118,16 +115,14 @@ def test_login_wrong_password(client, userInfo):
 
 def test_login_nonexistent_user(client, userInfo):
     email, password = userInfo
-    response = client.post(
-        "/api/login", json={"email": email, "password": password})
+    response = client.post("/api/login", json={"email": email, "password": password})
     assert response.status_code == 400
     assert response.get_json()["error"] == "Invalid email or password"
 
 
 def _register_and_login(client, email, password="12345678"):
     client.post("/api/signup", json=_signup_payload(email, password))
-    resp = client.post(
-        "/api/login", json={"email": email, "password": password})
+    resp = client.post("/api/login", json={"email": email, "password": password})
     return {"Authorization": f"Bearer {resp.get_json()['access_token']}"}
 
 
@@ -152,9 +147,7 @@ def test_change_password_success(client, auth_headers, userInfo):
     )
     assert response.status_code == 200
 
-    old_login = client.post(
-        "/api/login", json={"email": email, "password": password}
-    )
+    old_login = client.post("/api/login", json={"email": email, "password": password})
     assert old_login.status_code == 400
     new_login = client.post(
         "/api/login", json={"email": email, "password": "newpass123"}
@@ -252,8 +245,7 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
 
     # A nested reply by B pointing at A's reply on B's post (built directly,
     # since the API only creates top-level replies).
-    a_reply_on_b = Replies.query.filter_by(
-        userReplied=a_id, postId=post_b).first()
+    a_reply_on_b = Replies.query.filter_by(userReplied=a_id, postId=post_b).first()
     child = Replies(
         postId=post_b,
         userReplied=b_id,
