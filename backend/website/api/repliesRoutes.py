@@ -37,6 +37,7 @@ def get_replies(post_id):
             {
                 "id": reply.id,
                 "reply_text": reply.reply_text,
+                "userId": reply.userReplied,
                 "userName": user.first_name if user else "Unknown",
                 "replied_at": (
                     reply.replied_at.isoformat() if reply.replied_at else None

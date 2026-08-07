@@ -150,8 +150,18 @@ def post_api():
 @jwt_required(optional=True)
 def post_get_api():
     user_id = get_jwt_identity()
+    # Optional author filter, used by profile pages. "me" resolves to the
+    # caller so the client never has to know its own id.
+    author = request.args.get("userId")
+    if author == "me":
+        author = user_id
+        if not author:
+            return jsonify([])
     # Only "clean" posts are public; pending_review and removed stay hidden.
-    postInfo = Post.query.filter_by(review_status="clean").all()
+    query = Post.query.filter_by(review_status="clean")
+    if author:
+        query = query.filter_by(user_id=author)
+    postInfo = query.all()
     postList = []
     for post in postInfo:
         liked = False
@@ -172,6 +182,7 @@ def post_get_api():
                 "id": post.id,
                 "title": post.title,
                 "description": post.description,
+                "userId": post.user_id,
                 "name": post.user.first_name,
                 "likes": PostLikes.query.filter_by(postId=post.id).count(),
                 "dislikes": PostDislikes.query.filter_by(postId=post.id).count(),

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Avatar, Stack } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
+import ProfileAvatar from './ProfileAvatar';
 import LikeButton from './LikeButton';
 import DislikeButton from './DislikeButton';
 import ReplyButton from './ReplyButton';
@@ -10,6 +11,7 @@ import { getReplies } from '../api/api';
 const PostCard = ({
   postTitle,
   profilePic,
+  userId,
   userName,
   postBody,
   postId,
@@ -50,7 +52,7 @@ const PostCard = ({
           {postTitle ?? 'Post title'}
         </Typography>
         <Stack spacing={1} direction="row">
-          <Avatar alt={userName ?? 'No user attached'} />
+          <ProfileAvatar userId={userId} userName={userName ?? 'No user attached'} />
           <Box>
             <Typography>{userName ?? 'username'}</Typography>
             <Typography>{postBody}</Typography>
@@ -71,7 +73,12 @@ const PostCard = ({
         </Box>
       </Box>
       {replies.map(reply => (
-        <ReplyCard key={reply.id} userName={reply.userName} replyText={reply.reply_text} />
+        <ReplyCard
+          key={reply.id}
+          userId={reply.userId}
+          userName={reply.userName}
+          replyText={reply.reply_text}
+        />
       ))}
     </Box>
   );

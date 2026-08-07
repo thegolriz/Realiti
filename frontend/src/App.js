@@ -8,6 +8,7 @@ import Account from './pages/Account';
 import Support from './pages/Support';
 import About from './pages/About';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
@@ -52,6 +53,14 @@ function App() {
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
             }
           />
         </Routes>
