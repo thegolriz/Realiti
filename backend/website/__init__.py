@@ -27,7 +27,8 @@ def create_app():
 
     # app configs here
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "SQLALCHEMY_DATABASE_URI")
     # jwt configs bewloer
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     # Short-lived access token (header), long-lived refresh token (httpOnly
@@ -48,7 +49,7 @@ def create_app():
     jwt = JWTManager(app)  # noqa: F841
     CORS(
         app,
-        origins=["http://localhost:3000", "https://yourfuturefrontend.com"],
+        origins=["http://localhost:3000", "https://realiti.dev"],
         supports_credentials=True,
     )
 
