@@ -1,16 +1,22 @@
 """Unit tests for the Claude moderation layer (claudeModeration)."""
 
-import pytest
 from types import SimpleNamespace
 from unittest import mock
+
+import pytest
+
 from website.api import claudeModeration as cm
 from website.api.claudeModeration import (
-    DECISION_ALLOW, DECISION_BLOCK, DECISION_REVIEW, Verdict, run_claude_checks,
+    DECISION_ALLOW,
+    DECISION_BLOCK,
+    DECISION_REVIEW,
+    Verdict,
+    run_claude_checks,
 )
 
 
 def allow():
-    return Verdict(DECISION_ALLOW, '')
+    return Verdict(DECISION_ALLOW, "")
 
 
 def block(r="nope"):
@@ -31,22 +37,25 @@ def stub_checks(monkeypatch):
         def fake(*args, **kwargs):
             calls.append(name)
             return verdict
+
         return fake
 
     def set_verdicts(title=None, description=None, media=None, match=None):
         monkeypatch.setattr(cm, "check_title", make("title", title or allow()))
-        monkeypatch.setattr(cm, "check_description", make(
-            "description", description or allow()))
+        monkeypatch.setattr(
+            cm, "check_description", make("description", description or allow())
+        )
         monkeypatch.setattr(cm, "check_media", make("media", media or allow()))
-        monkeypatch.setattr(cm, "check_media_matches_description", make(
-            "match", match or allow()))
+        monkeypatch.setattr(
+            cm, "check_media_matches_description", make("match", match or allow())
+        )
 
     return set_verdicts, calls
 
 
 def test_all_allow_returns_none(stub_checks):
     set_verdicts, calls = stub_checks
-    set_verdicts()                                   # all ALLOW
+    set_verdicts()  # all ALLOW
     assert run_claude_checks("t", "d", "k.png") is None
     assert calls == ["title", "description", "media", "match"]
 
@@ -56,7 +65,7 @@ def test_block_short_circuits(stub_checks):
     set_verdicts(title=block("bad title"))
     v = run_claude_checks("t", "d", "k.png")
     assert v.decision == DECISION_BLOCK and v.reason == "bad title"
-    assert calls == ["title"]                        # nothing after title ran
+    assert calls == ["title"]  # nothing after title ran
 
 
 def test_block_outranks_earlier_review(stub_checks):
