@@ -1,0 +1,90 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: pytest
+        env:
+          TESTING: '1'
+        run: poetry run pytest
+
+  migrations:
+    name: migration drift guard
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: realiti
+          POSTGRES_PASSWORD: realiti
+          POSTGRES_DB: realiti_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      FLASK_APP: app.py
+      SECRET_KEY: ci-secret
+      JWT_SECRET_KEY: ci-jwt-secret
+      ANTHROPIC_API_KEY: ci-dummy-key
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://realiti:realiti@localhost:5432/realiti_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Apply migrations from scratch
+        run: poetry run flask db upgrade
+
+      # Fails if models.py has changes that no migration accounts for.
+      - name: Fail if models drift from migrations
+        run: poetry run flask db check
+
+      # Two branches each adding a migration off the same parent produces two
+      # heads, and `db upgrade` then refuses to run. Catch it before deploy.
+      - name: Fail if there is more than one head
+        run: |
+          count=$(poetry run flask db heads | grep -c .)
+          echo "head count: $count"
+          test "$count" -eq 1

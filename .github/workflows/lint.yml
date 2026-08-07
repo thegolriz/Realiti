@@ -6,7 +6,7 @@ on:
 
 jobs:
   python-lint:
-    name: flake8 + isort
+    name: flake8 + isort + black
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Poetry
         run: pip install poetry
@@ -31,6 +31,9 @@ jobs:
 
       - name: isort
         run: poetry run isort --check-only .
+
+      - name: black
+        run: poetry run black --check .
 
   frontend-lint:
     name: prettier
