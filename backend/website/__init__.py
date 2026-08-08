@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -9,6 +8,8 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
+from flask_limiter import Limiter, RateLimitExceeded
+from flask_limiter.util import get_remote_address
 
 
 class Base(DeclarativeBase):
@@ -16,6 +17,7 @@ class Base(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=Base)
+limiter = Limiter(key_func=get_remote_address)
 
 
 def create_app():
@@ -44,7 +46,9 @@ def create_app():
     app.config["JWT_COOKIE_SAMESITE"] = "Lax"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = True
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["RATELIMIT_HEADERS_ENABLED"] = True
     db.init_app(app)
+    limiter.init_app(app)
     migrate = Migrate(app, db, compare_type=True)  # noqa: F841
     jwt = JWTManager(app)  # noqa: F841
     CORS(
@@ -64,6 +68,10 @@ def create_app():
     @app.errorhandler(UnsupportedMediaType)
     def _handle_unsupported_media(err):
         return jsonify({"error": "Request body must be JSON"}), 415
+
+    @app.errorhandler(RateLimitExceeded)
+    def _handle_too_many_attempts(err):
+        return jsonify({"error": "Too many attempts made, try again later"}), 429
 
     from website.api.adminRoutes import adminRoutes
     from website.api.auth_routes import auth_routes  # noqa: F401

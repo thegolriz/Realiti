@@ -48,7 +48,8 @@ api.interceptors.response.use(
 
     const isAuthError = status === 401 || status === 422;
     const isRefreshCall = original?.url?.includes('/refresh');
-    if (!isAuthError || original?._retry || isRefreshCall) {
+    const isLoginCall = original?.url?.includes('/login');
+    if (!isAuthError || original?._retry || isRefreshCall || isLoginCall) {
       return Promise.reject(error);
     }
     original._retry = true;
