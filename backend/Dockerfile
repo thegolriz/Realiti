@@ -14,4 +14,4 @@ RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY . .
 
-CMD ["poetry", "run", "flask", "run", "--host=0.0.0.0", "--debug"]
+CMD ["poetry", "run", "gunicorn", "--bind", "0.0.0.0:5000", "--access-logfile","-","app:app"]
