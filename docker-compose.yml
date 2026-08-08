@@ -2,6 +2,7 @@ services:
   backend:
     ports:
       - '5001:5000'
+    command: poetry run flask run --host=0.0.0.0 --debug
     container_name: realiti
     build:
       context: ./backend
