@@ -109,14 +109,14 @@ def test_login_wrong_password(client, userInfo):
     response = client.post(
         "/api/login", json={"email": email, "password": "wrongpassword"}
     )
-    assert response.status_code == 400
+    assert response.status_code == 401
     assert response.get_json()["error"] == "Invalid email or password"
 
 
 def test_login_nonexistent_user(client, userInfo):
     email, password = userInfo
     response = client.post("/api/login", json={"email": email, "password": password})
-    assert response.status_code == 400
+    assert response.status_code == 401
     assert response.get_json()["error"] == "Invalid email or password"
 
 
@@ -148,7 +148,7 @@ def test_change_password_success(client, auth_headers, userInfo):
     assert response.status_code == 200
 
     old_login = client.post("/api/login", json={"email": email, "password": password})
-    assert old_login.status_code == 400
+    assert old_login.status_code == 401
     new_login = client.post(
         "/api/login", json={"email": email, "password": "newpass123"}
     )
@@ -279,3 +279,48 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
     surviving_child = Replies.query.get(child_id)
     assert surviving_child is not None
     assert surviving_child.parent_reply_id is None
+
+
+# Rate limiting. The limiter is easy to break silently (a decorator that is
+# registered but never bound to the app still lets every request through), so
+# these assert on an observed 429 rather than on configuration.
+
+
+def test_login_rate_limited_after_ten_attempts(client):
+    payload = {"email": "nobody@test.test", "password": "wrongpassword"}
+
+    for attempt in range(10):
+        response = client.post("/api/login", json=payload)
+        assert response.status_code != 429, f"limited early on attempt {attempt + 1}"
+
+    limited = client.post("/api/login", json=payload)
+    assert limited.status_code == 429
+    assert "error" in limited.get_json()
+    assert limited.headers["Retry-After"] is not None
+    assert limited.headers["X-RateLimit-Remaining"] == "0"
+
+
+def test_signup_rate_limited_after_five_attempts(client):
+    for attempt in range(5):
+        response = client.post(
+            "/api/signup", json=_signup_payload(f"user{attempt}@test.test", "12345678")
+        )
+        assert response.status_code != 429, f"limited early on attempt {attempt + 1}"
+
+    limited = client.post(
+        "/api/signup", json=_signup_payload("onemore@test.test", "12345678")
+    )
+    assert limited.status_code == 429
+    assert "error" in limited.get_json()
+
+
+def test_rate_limited_response_is_json(client):
+    payload = {"email": "nobody@test.test", "password": "wrongpassword"}
+    for _ in range(10):
+        client.post("/api/login", json=payload)
+    limited = client.post("/api/login", json=payload)
+
+    # The limiter's own 429 page is HTML; the app converts it so every error
+    # the frontend sees has the same {"error": ...} shape.
+    assert limited.status_code == 429
+    assert limited.headers["Content-Type"].startswith("application/json")

@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
-from website import db
+from website import db, limiter
 from website.models import Post, PostDislikes, PostLikes, Replies, User
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
@@ -16,6 +16,10 @@ auth_routes = Blueprint("auth_routes", __name__)
 
 
 @auth_routes.route("/login", methods=["POST"])
+@limiter.limit(
+    "10 per minute; 100 per day",
+    deduct_when=lambda response: response.status_code == 401,
+)
 def login_api():
     data = request.get_json()
     if not data or "email" not in data or "password" not in data:
@@ -42,7 +46,7 @@ def login_api():
         set_refresh_cookies(resp, refresh_token)
         return resp, 200
     else:
-        return jsonify({"error": "Invalid email or password"}), 400
+        return jsonify({"error": "Invalid email or password"}), 401
 
 
 @auth_routes.route("/protected", methods=["GET"])
@@ -72,6 +76,7 @@ def logout_api():
 
 
 @auth_routes.route("/signup", methods=["POST"])
+@limiter.limit("5 per hour; 20 per day")
 def signup_api():
     data = request.get_json()
     if (
@@ -183,15 +188,18 @@ def delete_account():
         # The user's own replies on other people's posts. Detach any child
         # replies that point at them (those belong to other users, on other
         # people's posts) so those threads survive with a null parent.
-        my_reply_ids = [r.id for r in Replies.query.filter_by(userReplied=uid).all()]
+        my_reply_ids = [r.id for r in Replies.query.filter_by(
+            userReplied=uid).all()]
         if my_reply_ids:
             Replies.query.filter(Replies.parent_reply_id.in_(my_reply_ids)).update(
                 {Replies.parent_reply_id: None}, synchronize_session=False
             )
-            Replies.query.filter_by(userReplied=uid).delete(synchronize_session=False)
+            Replies.query.filter_by(userReplied=uid).delete(
+                synchronize_session=False)
 
         # The user's likes/dislikes on other people's posts.
-        PostLikes.query.filter_by(userSentLike=uid).delete(synchronize_session=False)
+        PostLikes.query.filter_by(userSentLike=uid).delete(
+            synchronize_session=False)
         PostDislikes.query.filter_by(userSentDislike=uid).delete(
             synchronize_session=False
         )
