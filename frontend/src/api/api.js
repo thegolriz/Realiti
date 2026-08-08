@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from './authStore';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: '/api',
   timeout: 15000,
   withCredentials: true, // send the httpOnly refresh cookie
 });

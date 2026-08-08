@@ -29,7 +29,6 @@ const Dashboard = props => {
     };
     fetchData();
   }, [bootstrapping, token]);
-  console.log('Posts here\n', posts);
   const listPosts = posts.map(data => (
     <PostCard
       postTitle={data.title}
