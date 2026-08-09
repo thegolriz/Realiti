@@ -10,6 +10,7 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 from flask_limiter import Limiter, RateLimitExceeded
 from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 class Base(DeclarativeBase):
@@ -26,6 +27,10 @@ def create_app():
     app = Flask(__name__)
     basedir = os.path.abspath(os.path.dirname(__file__))
     load_dotenv(os.path.join(basedir, "..", "..", ".env"))
+    proxy_hops = int(os.getenv("PROXY_FIX_HOPS", "0"))
+    if proxy_hops:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops)
 
     # app configs here
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
