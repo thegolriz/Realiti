@@ -19,9 +19,9 @@ const MENU_ITEMS = [
   { label: 'Admin dashboard', to: '/admin', adminOnly: true },
   { label: 'Profile', to: '/profile/me', requiresAuth: true },
   { label: 'Account dashboard', to: '/account', requiresAuth: true },
-  { label: 'Support', to: '/support', requiresAuth: true },
   { label: 'About', to: '/about' },
   { label: 'Guidelines', to: '/guidelines' },
+  { label: 'Contact', to: '/contact' },
 ];
 
 export default function ButtonAppBar() {

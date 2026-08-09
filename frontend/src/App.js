@@ -5,7 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Signup from './pages/Signup';
 import Guidelines from './pages/Guidelines';
 import Account from './pages/Account';
-import Support from './pages/Support';
+import Contact from './pages/Contact';
 import About from './pages/About';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
@@ -38,14 +38,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/support"
-            element={
-              <ProtectedRoute>
-                <Support />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route
             path="/admin"
