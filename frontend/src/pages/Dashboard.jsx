@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import api from '../api/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import CreatePostButton from '../components/CreatePostButton.jsx';
+import TestPeriodNotice from '../components/TestPeriodNotice.jsx';
 import AppTheme from '../shared-theme/AppTheme';
 
 const Dashboard = props => {
@@ -51,6 +52,7 @@ const Dashboard = props => {
         <Box sx={{ width: '50%', margin: '0 auto' }}>
           <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
             <CreatePostButton />
+            <TestPeriodNotice />
             {loading ? <CircularProgress sx={{ mt: 4 }} /> : listPosts}
           </Stack>
         </Box>
