@@ -141,7 +141,9 @@ export default function Post(props) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            width: '25vw',
+            // The Dialog paper sizes to its content, so this stays in vw
+            // rather than % (there is no parent width to take a % of).
+            width: { xs: '75vw', md: '25vw' },
           }}
         >
           <TextField
