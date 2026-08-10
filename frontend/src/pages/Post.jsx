@@ -130,8 +130,9 @@ export default function Post(props) {
           display: 'flex',
           alignItems: 'center',
           flexDirection: 'column',
-          height: '60vh',
+          height: { xs: 'auto', md: '60vh' },
           justifyContent: 'center',
+          py: { xs: 3, md: 0 },
           gap: 4,
         }}
       >
@@ -141,8 +142,6 @@ export default function Post(props) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            // The Dialog paper sizes to its content, so this stays in vw
-            // rather than % (there is no parent width to take a % of).
             width: { xs: '75vw', md: '25vw' },
           }}
         >
