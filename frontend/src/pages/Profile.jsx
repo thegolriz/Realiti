@@ -44,7 +44,15 @@ export default function Profile(props) {
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
       <NavBar />
-      <Box sx={{ width: '50%', margin: '0 auto', pt: 9, pb: 6 }}>
+      <Box
+        sx={{
+          width: { xs: '100%', md: '50%' },
+          margin: '0 auto',
+          px: { xs: 2, md: 0 },
+          pt: 9,
+          pb: 6,
+        }}
+      >
         <Stack
           direction="row"
           sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 2 }}
