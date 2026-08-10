@@ -49,7 +49,13 @@ const Dashboard = props => {
       <CssBaseline enableColorScheme />
       <Box>
         <NavBar />
-        <Box sx={{ width: '50%', margin: '0 auto' }}>
+        <Box
+          sx={{
+            width: { xs: '100%', md: '50%' },
+            margin: '0 auto',
+            px: { xs: 2, md: 0 },
+          }}
+        >
           <Stack spacing={1} direction="column" sx={{ mt: 9, alignItems: 'center' }}>
             <CreatePostButton />
             <TestPeriodNotice />
