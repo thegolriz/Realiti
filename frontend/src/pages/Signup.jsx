@@ -11,6 +11,7 @@ import MuiCard from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
 import { signup } from '../api/api.js';
@@ -66,7 +67,20 @@ export default function SignUp(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
+  const submittingRef = React.useRef(false);
+  const redirectRef = React.useRef(null);
   const { notification, notify, closeNotification } = useNotification();
+  const navigate = useNavigate();
+
+  React.useEffect(
+    () => () => {
+      if (redirectRef.current) {
+        clearTimeout(redirectRef.current);
+      }
+    },
+    []
+  );
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -114,10 +128,19 @@ export default function SignUp(props) {
 
   const handleSubmit = event => {
     event.preventDefault();
+    // Two quick taps can both read the pre-render value of `submitting`, so
+    // the ref is what actually blocks the duplicate. Without it the second
+    // request lands after the account exists and fails with "email in use",
+    // which reads as a failed signup and invites more retries.
+    if (submittingRef.current) {
+      return;
+    }
     if (!validateInputs()) {
       return;
     }
     const data = new FormData(event.currentTarget);
+    submittingRef.current = true;
+    setSubmitting(true);
     signup({
       first_name: data.get('first_name'),
       last_name: data.get('last_name'),
@@ -125,11 +148,16 @@ export default function SignUp(props) {
       password: data.get('password'),
     })
       .then(() => {
-        notify('Account created! You can now sign in.', 'success');
+        notify('Account created! Taking you to sign in.', 'success');
+        // Leave the page on success. 
+        // Stay disabled until the redirect fires.
+        redirectRef.current = setTimeout(() => navigate('/signin'), 1500);
       })
       .catch(err => {
         const message = getServerError(err);
         notify(message, serverErrorSeverity(message));
+        submittingRef.current = false;
+        setSubmitting(false);
       });
   };
 
@@ -210,8 +238,8 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
-            <Button type="submit" fullWidth variant="contained">
-              Sign up
+            <Button type="submit" fullWidth variant="contained" disabled={submitting}>
+              {submitting ? 'Creating account...' : 'Sign up'}
             </Button>
           </Box>
           <Divider>or</Divider>
