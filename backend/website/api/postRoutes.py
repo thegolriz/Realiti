@@ -90,7 +90,7 @@ def post_api():
             jsonify({"error": ("Please provide a description for your post.")}),
             400,
         )
-    title = data["title"]
+    title = data.get("title", "")
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
@@ -109,8 +109,6 @@ def post_api():
     # 3. Claude layer: text, then media, then media-vs-description.
     verdict = run_claude_checks(title, description, s3_obj)
     if verdict and verdict.decision == DECISION_BLOCK:
-        # TODO: map verdict.reason to guideline copy the way the regex
-        # reasons are mapped above, rather than returning the raw reason.
         return jsonify({"error": verdict.reason}), 400
     if verdict and verdict.decision == DECISION_REVIEW:
         # Claude was unsure: persist the post but keep it out of the public

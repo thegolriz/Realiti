@@ -1,15 +1,16 @@
 import os
 from datetime import timedelta
+
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter, RateLimitExceeded
+from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
-from flask_limiter import Limiter, RateLimitExceeded
-from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
