@@ -98,7 +98,12 @@ def signup_api():
 
     existing = User.query.filter_by(email=email).first()
     if existing:
-        return jsonify({"error": "email in use"}), 400
+        return (
+            jsonify(
+                {"error": "An account with that email already exists. Try signing in."}
+            ),
+            400,
+        )
     password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name

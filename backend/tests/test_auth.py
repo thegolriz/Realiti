@@ -52,7 +52,7 @@ def test_signup_duplicate_email(client, userInfo):
     client.post("/api/signup", json=payload)
     response = client.post("/api/signup", json=payload)
     assert response.status_code == 400
-    assert response.get_json()["error"] == "email in use"
+    assert "already exists" in response.get_json()["error"]
 
 
 def test_login_success(client, userInfo):
