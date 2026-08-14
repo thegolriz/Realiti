@@ -30,13 +30,11 @@ def create_app():
     load_dotenv(os.path.join(basedir, "..", "..", ".env"))
     proxy_hops = int(os.getenv("PROXY_FIX_HOPS", "0"))
     if proxy_hops:
-        app.wsgi_app = ProxyFix(
-            app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops)
 
     # app configs here
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     # jwt configs bewloer
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     # Short-lived access token (header), long-lived refresh token (httpOnly
