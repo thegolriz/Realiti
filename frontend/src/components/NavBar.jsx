@@ -111,7 +111,7 @@ export default function ButtonAppBar() {
               },
             }}
           >
-            {isLoggedIn ? 'Logout' : 'Signin'}
+            {isLoggedIn ? 'Log out' : 'Sign in'}
           </Button>
         </Toolbar>
       </AppBar>

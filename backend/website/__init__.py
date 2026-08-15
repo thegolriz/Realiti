@@ -1,15 +1,16 @@
 import os
 from datetime import timedelta
+
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter, RateLimitExceeded
+from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.exceptions import BadRequest, UnsupportedMediaType
-from flask_limiter import Limiter, RateLimitExceeded
-from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -29,13 +30,11 @@ def create_app():
     load_dotenv(os.path.join(basedir, "..", "..", ".env"))
     proxy_hops = int(os.getenv("PROXY_FIX_HOPS", "0"))
     if proxy_hops:
-        app.wsgi_app = ProxyFix(
-            app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops)
 
     # app configs here
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     # jwt configs bewloer
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     # Short-lived access token (header), long-lived refresh token (httpOnly
