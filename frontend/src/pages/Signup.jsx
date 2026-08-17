@@ -149,7 +149,7 @@ export default function SignUp(props) {
     })
       .then(() => {
         notify('Account created! Taking you to sign in.', 'success');
-        // Leave the page on success. 
+        // Leave the page on success.
         // Stay disabled until the redirect fires.
         redirectRef.current = setTimeout(() => navigate('/signin'), 1500);
       })

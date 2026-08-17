@@ -23,8 +23,7 @@ export default function Contact(props) {
           Contact
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Realiti is in open testing, so questions, bug reports, and blunt
-          feedback are all welcome.
+          Realiti is in open testing, so questions, bug reports, and blunt feedback are all welcome.
         </Typography>
 
         <Box sx={{ mb: 3 }}>
@@ -33,9 +32,8 @@ export default function Contact(props) {
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Questions, bug reports, and anything else can go to{' '}
-            <Link href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</Link>. You do
-            not need an account to write in. It is one person reading these, so
-            replies may take a few days.
+            <Link href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</Link>. You do not need an
+            account to write in. It is one person reading these, so replies may take a few days.
           </Typography>
         </Box>
 
@@ -48,9 +46,8 @@ export default function Contact(props) {
             <Link component={RouterLink} to="/guidelines">
               guidelines
             </Link>
-            , use the report button on the post itself rather than email.
-            Reports arrive with the post attached, which makes them much faster
-            to act on.
+            , use the report button on the post itself rather than email. Reports arrive with the
+            post attached, which makes them much faster to act on.
           </Typography>
         </Box>
 

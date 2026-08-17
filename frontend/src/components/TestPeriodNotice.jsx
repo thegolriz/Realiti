@@ -10,13 +10,10 @@ const TEST_END = 'August 17, 2026';
 
 const TestPeriodNotice = () => (
   <Alert severity="info" sx={{ width: '100%' }}>
-    <AlertTitle>
-      Open test: {TEST_START} through {TEST_END}
-    </AlertTitle>
-    Realiti is still being built. Accounts, posts, replies, and uploaded images
-    are subject to deletion at any time and without notice, so please don&apos;t
-    post anything you&apos;d mind losing. Features may change or break while
-    testing continues. See the{' '}
+    <AlertTitle>Open test:</AlertTitle>
+    Realiti is still being built. Accounts, posts, replies, and uploaded images are subject to
+    deletion at any time and without notice, so please don&apos;t post anything you&apos;d mind
+    losing. Features may change or break while testing continues. See the{' '}
     <Link component={RouterLink} to="/guidelines">
       guidelines
     </Link>{' '}
