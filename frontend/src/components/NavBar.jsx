@@ -22,6 +22,7 @@ const MENU_ITEMS = [
   { label: 'About', to: '/about' },
   { label: 'Guidelines', to: '/guidelines' },
   { label: 'Contact', to: '/contact' },
+  { label: 'Release Notes', to: '/releasenotes' },
 ];
 
 export default function ButtonAppBar() {

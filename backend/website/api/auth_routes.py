@@ -93,8 +93,8 @@ def signup_api():
     last_name = data.get("last_name")
     password = data.get("password")
 
-    if len(password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+    if len(password) < 15:
+        return jsonify({"error": "Password must be at least 15 characters long"}), 400
 
     existing = User.query.filter_by(email=email).first()
     if existing:
@@ -193,15 +193,18 @@ def delete_account():
         # The user's own replies on other people's posts. Detach any child
         # replies that point at them (those belong to other users, on other
         # people's posts) so those threads survive with a null parent.
-        my_reply_ids = [r.id for r in Replies.query.filter_by(userReplied=uid).all()]
+        my_reply_ids = [r.id for r in Replies.query.filter_by(
+            userReplied=uid).all()]
         if my_reply_ids:
             Replies.query.filter(Replies.parent_reply_id.in_(my_reply_ids)).update(
                 {Replies.parent_reply_id: None}, synchronize_session=False
             )
-            Replies.query.filter_by(userReplied=uid).delete(synchronize_session=False)
+            Replies.query.filter_by(userReplied=uid).delete(
+                synchronize_session=False)
 
         # The user's likes/dislikes on other people's posts.
-        PostLikes.query.filter_by(userSentLike=uid).delete(synchronize_session=False)
+        PostLikes.query.filter_by(userSentLike=uid).delete(
+            synchronize_session=False)
         PostDislikes.query.filter_by(userSentDislike=uid).delete(
             synchronize_session=False
         )

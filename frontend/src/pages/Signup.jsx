@@ -238,6 +238,10 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            <Typography sx={{ fontSize: 12 }}>
+              15+ characters seperate by spaces or hyphens <br />
+              e.g. 'correct-horse-battery-staple'
+            </Typography>
             <Button type="submit" fullWidth variant="contained" disabled={submitting}>
               {submitting ? 'Creating account...' : 'Sign up'}
             </Button>

@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+import ReleaseNotes from './pages/ReleaseNotes';
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/releasenotes" element={<ReleaseNotes />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
