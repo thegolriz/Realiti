@@ -43,7 +43,7 @@ def client(app):
 
 @pytest.fixture
 def userInfo():
-    return "test@test.test", "12345678"
+    return "test@test.test", "123456789293829"
 
 
 @pytest.fixture
@@ -58,7 +58,8 @@ def auth_headers(client, userInfo):
             "password": password,
         },
     )
-    response = client.post("/api/login", json={"email": email, "password": password})
+    response = client.post(
+        "/api/login", json={"email": email, "password": password})
     token = response.get_json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 

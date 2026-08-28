@@ -100,9 +100,9 @@ export default function SignUp(props) {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 8) {
+    if (!password.value || password.value.length < 15) {
       setPasswordError(true);
-      notify('Password must be at least 8 characters long.', 'warning');
+      notify('Password must be at least 15 characters long.', 'warning');
       isValid = false;
     } else {
       setPasswordError(false);

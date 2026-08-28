@@ -140,7 +140,7 @@ export default function Account(props) {
                 id="new-password"
                 value={newPass}
                 onChange={e => setNewPass(e.target.value)}
-                helperText="At least 8 characters"
+                helperText="At least 15 characters"
                 fullWidth
               />
             </FormControl>
