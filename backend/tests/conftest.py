@@ -24,6 +24,17 @@ def _offline_claude(monkeypatch):
     )
 
 
+@pytest.fixture(autouse=True)
+def _offline_hibp(monkeypatch):
+    # Default every test's HIBP check to "clean" so signup-driven tests stay
+    # offline (no network dependency, no HIBP rate limiting in CI). Tests
+    # that need to exercise the compromised/unknown branches override this
+    # with their own patch.
+    monkeypatch.setattr(
+        "website.api.auth_routes.hashMode", lambda password: "clean"
+    )
+
+
 @pytest.fixture
 def app(tmp_path):
     os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{tmp_path / 'test.db'}"

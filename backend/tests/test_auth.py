@@ -56,6 +56,45 @@ def test_signup_duplicate_email(client, userInfo):
     assert "already exists" in response.get_json()["error"]
 
 
+def test_signup_compromised_password_rejected(client, userInfo, monkeypatch):
+    monkeypatch.setattr(
+        "website.api.auth_routes.hashMode", lambda password: "compromised"
+    )
+    email, password = userInfo
+    response = client.post(
+        "/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 400
+    assert "data breach" in response.get_json()["error"]
+    assert User.query.filter_by(email=email).first() is None
+
+
+def test_signup_clean_password_has_no_warning(client, userInfo, monkeypatch):
+    monkeypatch.setattr(
+        "website.api.auth_routes.hashMode", lambda password: "clean"
+    )
+    email, password = userInfo
+    response = client.post(
+        "/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 201
+    assert "warning" not in response.get_json()
+
+
+def test_signup_hibp_unknown_still_creates_account_with_warning(
+    client, userInfo, monkeypatch
+):
+    monkeypatch.setattr(
+        "website.api.auth_routes.hashMode", lambda password: "unknown"
+    )
+    email, password = userInfo
+    response = client.post(
+        "/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 201
+    body = response.get_json()
+    assert body["message"] == "account created"
+    assert "warning" in body
+    assert User.query.filter_by(email=email).first() is not None
+
+
 def test_login_success(client, userInfo):
     email, password = userInfo
     client.post("/api/signup", json=_signup_payload(email, password))
