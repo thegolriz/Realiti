@@ -7,7 +7,7 @@ from flask_jwt_extended import (
     set_refresh_cookies,
     unset_jwt_cookies,
 )
-
+from website.HIBPCheck import hashMode
 from website import db, limiter
 from website.models import Post, PostDislikes, PostLikes, Replies, User
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
@@ -104,13 +104,24 @@ def signup_api():
             ),
             400,
         )
+    pwnCheck = hashMode(password)
+    if pwnCheck == "compromised":
+        return jsonify({"error": "This password has appeared in a data breach. Please choose a different one."}), 400
+    warning = None
+    if pwnCheck == "unknown":
+        warning = ("Account created, but we were unable to check if this password "
+                   "appears in a known data breach. We recommend checking it yourself "
+                   "once the service is back up.")
     password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
     )
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({"message": "account created"}), 201
+    response = {"message": "account created"}
+    if warning:
+        response["warning"] = warning
+    return jsonify(response), 201
 
 
 @auth_routes.route("/account", methods=["GET"])
