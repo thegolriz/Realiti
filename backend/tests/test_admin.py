@@ -20,8 +20,7 @@ def _make_admin(client, email="admin@test.test", password="1234567893939393939")
     user = User.query.filter_by(email=email).first()
     user.is_admin = True
     db.session.commit()
-    login = client.post(
-        "/api/login", json={"email": email, "password": password})
+    login = client.post("/api/login", json={"email": email, "password": password})
     return {"Authorization": f"Bearer {login.get_json()['access_token']}"}
 
 
@@ -62,12 +61,10 @@ def test_needs_review_post_hidden_then_approved(client, auth_headers, monkeypatc
     post_id = queue[0]["id"]
 
     # Approve -> shows in the feed, leaves the queue.
-    approve = client.post(
-        f"/api/admin/review-posts/{post_id}/approve", headers=admin)
+    approve = client.post(f"/api/admin/review-posts/{post_id}/approve", headers=admin)
     assert approve.status_code == 200
     assert len(client.get("/api/post").get_json()) == 1
-    assert client.get("/api/admin/review-posts",
-                      headers=admin).get_json() == []
+    assert client.get("/api/admin/review-posts", headers=admin).get_json() == []
 
 
 def test_needs_review_post_rejected_stays_hidden(client, auth_headers, monkeypatch):
@@ -82,15 +79,13 @@ def test_needs_review_post_rejected_stays_hidden(client, auth_headers, monkeypat
     post_id = queue[0]["id"]
     client.post(f"/api/admin/review-posts/{post_id}/reject", headers=admin)
     assert client.get("/api/post").get_json() == []
-    assert client.get("/api/admin/review-posts",
-                      headers=admin).get_json() == []
+    assert client.get("/api/admin/review-posts", headers=admin).get_json() == []
 
 
 def test_report_creation_and_uphold(client, auth_headers, post_id):
     resp = client.post(
         "/api/report",
-        json={"postId": post_id, "reason": "spam",
-              "evidence_url": "http://x/y"},
+        json={"postId": post_id, "reason": "spam", "evidence_url": "http://x/y"},
         headers=auth_headers,
     )
     assert resp.status_code == 201
@@ -119,8 +114,7 @@ def test_report_dismiss_keeps_post(client, auth_headers, post_id):
         headers=auth_headers,
     )
     admin = _make_admin(client)
-    report_id = client.get("/api/admin/reports",
-                           headers=admin).get_json()[0]["id"]
+    report_id = client.get("/api/admin/reports", headers=admin).get_json()[0]["id"]
     client.post(
         f"/api/admin/reports/{report_id}/resolve",
         json={"action": "dismiss"},
@@ -131,6 +125,5 @@ def test_report_dismiss_keeps_post(client, auth_headers, post_id):
 
 
 def test_report_requires_reason(client, auth_headers, post_id):
-    resp = client.post(
-        "/api/report", json={"postId": post_id}, headers=auth_headers)
+    resp = client.post("/api/report", json={"postId": post_id}, headers=auth_headers)
     assert resp.status_code == 400

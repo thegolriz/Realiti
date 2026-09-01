@@ -106,12 +106,22 @@ def signup_api():
         )
     pwnCheck = hashMode(password)
     if pwnCheck == "compromised":
-        return jsonify({"error": "This password has appeared in a data breach. Please choose a different one."}), 400
+        return (
+            jsonify(
+                {
+                    "error": "This password has appeared in a data breach. "
+                    "Please choose a different one."
+                }
+            ),
+            400,
+        )
     warning = None
     if pwnCheck == "unknown":
-        warning = ("Account created, but we were unable to check if this password "
-                   "appears in a known data breach. We recommend checking it yourself "
-                   "once the service is back up.")
+        warning = (
+            "Account created, but we were unable to check if this password "
+            "appears in a known data breach. We recommend checking it yourself "
+            "once the service is back up."
+        )
     password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
@@ -204,18 +214,15 @@ def delete_account():
         # The user's own replies on other people's posts. Detach any child
         # replies that point at them (those belong to other users, on other
         # people's posts) so those threads survive with a null parent.
-        my_reply_ids = [r.id for r in Replies.query.filter_by(
-            userReplied=uid).all()]
+        my_reply_ids = [r.id for r in Replies.query.filter_by(userReplied=uid).all()]
         if my_reply_ids:
             Replies.query.filter(Replies.parent_reply_id.in_(my_reply_ids)).update(
                 {Replies.parent_reply_id: None}, synchronize_session=False
             )
-            Replies.query.filter_by(userReplied=uid).delete(
-                synchronize_session=False)
+            Replies.query.filter_by(userReplied=uid).delete(synchronize_session=False)
 
         # The user's likes/dislikes on other people's posts.
-        PostLikes.query.filter_by(userSentLike=uid).delete(
-            synchronize_session=False)
+        PostLikes.query.filter_by(userSentLike=uid).delete(synchronize_session=False)
         PostDislikes.query.filter_by(userSentDislike=uid).delete(
             synchronize_session=False
         )

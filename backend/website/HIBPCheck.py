@@ -1,7 +1,7 @@
 import requests
 import hashlib
 
-BASE_API = 'https://api.pwnedpasswords.com/range/'
+BASE_API = "https://api.pwnedpasswords.com/range/"
 
 
 def hashMode(password):
@@ -12,7 +12,7 @@ def hashMode(password):
 
 def beenPwned(prefix, suffix) -> str:
     try:
-        r = requests.get(BASE_API+prefix, timeout=5)
+        r = requests.get(BASE_API + prefix, timeout=5)
         if r.status_code != 200:
             return "unknown"
         linesR = [line.split(":")[0] for line in r.text.splitlines()]

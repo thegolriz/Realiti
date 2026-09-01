@@ -30,9 +30,7 @@ def _offline_hibp(monkeypatch):
     # offline (no network dependency, no HIBP rate limiting in CI). Tests
     # that need to exercise the compromised/unknown branches override this
     # with their own patch.
-    monkeypatch.setattr(
-        "website.api.auth_routes.hashMode", lambda password: "clean"
-    )
+    monkeypatch.setattr("website.api.auth_routes.hashMode", lambda password: "clean")
 
 
 @pytest.fixture
@@ -69,8 +67,7 @@ def auth_headers(client, userInfo):
             "password": password,
         },
     )
-    response = client.post(
-        "/api/login", json={"email": email, "password": password})
+    response = client.post("/api/login", json={"email": email, "password": password})
     token = response.get_json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
