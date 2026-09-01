@@ -10,6 +10,14 @@ const SECTIONS = [
     body: 'Here you can find every new update that has been added to Realiti!.',
     items: [],
   },
+  {
+    title: 'Update 08/31/2026',
+    body: 'Password changes',
+    items: [
+      'Passwords now require lenght of 15 or more',
+      'Passwords upon creation checks a comprimised database to ensure safety of users',
+    ],
+  },
 ];
 
 export default function ReleaseNotes(props) {
@@ -19,7 +27,7 @@ export default function ReleaseNotes(props) {
       <NavBar />
       <Box sx={{ maxWidth: 720, mx: 'auto', px: 3, pt: 12, pb: 6 }}>
         <Typography variant="h3" component="h1" gutterBottom>
-          Community Guidelines
+          Release Notes
         </Typography>
 
         {SECTIONS.map(section => (
