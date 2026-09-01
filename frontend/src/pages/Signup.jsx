@@ -100,9 +100,9 @@ export default function SignUp(props) {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 8) {
+    if (!password.value || password.value.length < 15) {
       setPasswordError(true);
-      notify('Password must be at least 8 characters long.', 'warning');
+      notify('Password must be at least 15 characters long.', 'warning');
       isValid = false;
     } else {
       setPasswordError(false);
@@ -238,6 +238,10 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            <Typography sx={{ fontSize: 12 }}>
+              15+ characters seperate by spaces or hyphens <br />
+              e.g. 'correct-horse-battery-staple'
+            </Typography>
             <Button type="submit" fullWidth variant="contained" disabled={submitting}>
               {submitting ? 'Creating account...' : 'Sign up'}
             </Button>

@@ -2,9 +2,9 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
+// import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
+// import FormControlLabel from '@mui/material/FormControlLabel';
 import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
@@ -158,10 +158,10 @@ export default function SignIn(props) {
                 variant="outlined"
               />
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+            {/* <FormControlLabel */}
+            {/*   control={<Checkbox value="remember" color="primary" />} */}
+            {/*   label="Remember me" */}
+            {/* /> */}
             {/* <ForgotPassword open={open} handleClose={handleClose} /> */}
             <Button type="submit" fullWidth variant="contained">
               Sign in

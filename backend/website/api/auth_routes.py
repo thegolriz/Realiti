@@ -9,6 +9,7 @@ from flask_jwt_extended import (
 )
 
 from website import db, limiter
+from website.HIBPCheck import hashMode
 from website.models import Post, PostDislikes, PostLikes, Replies, User
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
@@ -93,8 +94,8 @@ def signup_api():
     last_name = data.get("last_name")
     password = data.get("password")
 
-    if len(password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+    if len(password) < 15:
+        return jsonify({"error": "Password must be at least 15 characters long"}), 400
 
     existing = User.query.filter_by(email=email).first()
     if existing:
@@ -104,13 +105,34 @@ def signup_api():
             ),
             400,
         )
+    pwnCheck = hashMode(password)
+    if pwnCheck == "compromised":
+        return (
+            jsonify(
+                {
+                    "error": "This password has appeared in a data breach. "
+                    "Please choose a different one."
+                }
+            ),
+            400,
+        )
+    warning = None
+    if pwnCheck == "unknown":
+        warning = (
+            "Account created, but we were unable to check if this password "
+            "appears in a known data breach. We recommend checking it yourself "
+            "once the service is back up."
+        )
     password = hash_password(password)
     new_user = User(
         email=email, password=password, first_name=first_name, last_name=last_name
     )
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({"message": "account created"}), 201
+    response = {"message": "account created"}
+    if warning:
+        response["warning"] = warning
+    return jsonify(response), 201
 
 
 @auth_routes.route("/account", methods=["GET"])
@@ -150,8 +172,8 @@ def change_password():
         return jsonify({"error": "Current password is incorrect"}), 400
     if new_password != confirm_password:
         return jsonify({"error": "New passwords do not match"}), 400
-    if len(new_password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+    if len(new_password) < 15:
+        return jsonify({"error": "Password must be at least 15 characters long"}), 400
 
     user.password = hash_password(new_password)
     db.session.commit()

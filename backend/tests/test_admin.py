@@ -7,7 +7,7 @@ from website.models import User
 REVIEW_VERDICT = Verdict(DECISION_REVIEW, "unsure")
 
 
-def _make_admin(client, email="admin@test.test", password="12345678"):
+def _make_admin(client, email="admin@test.test", password="1234567893939393939"):
     client.post(
         "/api/signup",
         json={

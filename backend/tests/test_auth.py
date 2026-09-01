@@ -43,7 +43,7 @@ def test_signup_short_password(client, userInfo):
     email, _ = userInfo
     response = client.post("/api/signup", json=_signup_payload(email, "short"))
     assert response.status_code == 400
-    assert "at least 8 characters" in response.get_json()["error"]
+    assert "at least 15 characters" in response.get_json()["error"]
 
 
 def test_signup_duplicate_email(client, userInfo):
@@ -53,6 +53,38 @@ def test_signup_duplicate_email(client, userInfo):
     response = client.post("/api/signup", json=payload)
     assert response.status_code == 400
     assert "already exists" in response.get_json()["error"]
+
+
+def test_signup_compromised_password_rejected(client, userInfo, monkeypatch):
+    monkeypatch.setattr(
+        "website.api.auth_routes.hashMode", lambda password: "compromised"
+    )
+    email, password = userInfo
+    response = client.post("/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 400
+    assert "data breach" in response.get_json()["error"]
+    assert User.query.filter_by(email=email).first() is None
+
+
+def test_signup_clean_password_has_no_warning(client, userInfo, monkeypatch):
+    monkeypatch.setattr("website.api.auth_routes.hashMode", lambda password: "clean")
+    email, password = userInfo
+    response = client.post("/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 201
+    assert "warning" not in response.get_json()
+
+
+def test_signup_hibp_unknown_still_creates_account_with_warning(
+    client, userInfo, monkeypatch
+):
+    monkeypatch.setattr("website.api.auth_routes.hashMode", lambda password: "unknown")
+    email, password = userInfo
+    response = client.post("/api/signup", json=_signup_payload(email, password))
+    assert response.status_code == 201
+    body = response.get_json()
+    assert body["message"] == "account created"
+    assert "warning" in body
+    assert User.query.filter_by(email=email).first() is not None
 
 
 def test_login_success(client, userInfo):
@@ -120,7 +152,7 @@ def test_login_nonexistent_user(client, userInfo):
     assert response.get_json()["error"] == "Invalid email or password"
 
 
-def _register_and_login(client, email, password="12345678"):
+def _register_and_login(client, email, password="123456789101111223"):
     client.post("/api/signup", json=_signup_payload(email, password))
     resp = client.post("/api/login", json={"email": email, "password": password})
     return {"Authorization": f"Bearer {resp.get_json()['access_token']}"}
@@ -140,8 +172,8 @@ def test_change_password_success(client, auth_headers, userInfo):
         "/api/account/password",
         json={
             "current_password": password,
-            "new_password": "newpass123",
-            "confirm_password": "newpass123",
+            "new_password": "newpass12333333333",
+            "confirm_password": "newpass12333333333",
         },
         headers=auth_headers,
     )
@@ -150,7 +182,7 @@ def test_change_password_success(client, auth_headers, userInfo):
     old_login = client.post("/api/login", json={"email": email, "password": password})
     assert old_login.status_code == 401
     new_login = client.post(
-        "/api/login", json={"email": email, "password": "newpass123"}
+        "/api/login", json={"email": email, "password": "newpass12333333333"}
     )
     assert new_login.status_code == 200
 
@@ -291,7 +323,10 @@ def test_login_rate_limited_after_ten_attempts(client):
 
     for attempt in range(10):
         response = client.post("/api/login", json=payload)
-        assert response.status_code != 429, f"limited early on attempt {attempt + 1}"
+        assert (
+            response.status_code != 429
+        ), f"limited early on attempt {
+            attempt + 1}"
 
     limited = client.post("/api/login", json=payload)
     assert limited.status_code == 429
@@ -305,7 +340,10 @@ def test_signup_rate_limited_after_five_attempts(client):
         response = client.post(
             "/api/signup", json=_signup_payload(f"user{attempt}@test.test", "12345678")
         )
-        assert response.status_code != 429, f"limited early on attempt {attempt + 1}"
+        assert (
+            response.status_code != 429
+        ), f"limited early on attempt {
+            attempt + 1}"
 
     limited = client.post(
         "/api/signup", json=_signup_payload("onemore@test.test", "12345678")
