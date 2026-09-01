@@ -1,5 +1,6 @@
-import requests
 import hashlib
+
+import requests
 
 BASE_API = "https://api.pwnedpasswords.com/range/"
 

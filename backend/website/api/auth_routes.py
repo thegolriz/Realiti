@@ -7,8 +7,9 @@ from flask_jwt_extended import (
     set_refresh_cookies,
     unset_jwt_cookies,
 )
-from website.HIBPCheck import hashMode
+
 from website import db, limiter
+from website.HIBPCheck import hashMode
 from website.models import Post, PostDislikes, PostLikes, Replies, User
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
