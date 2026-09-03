@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes
+from website.models import Post, PostDislikes, PostLikes, Tag, PostTags
 
 from .claudeModeration import DECISION_BLOCK, DECISION_REVIEW, run_claude_checks
 from .moderationRoute import (
@@ -15,6 +15,8 @@ from .moderationRoute import (
     moderation_check,
     regex_check,
 )
+
+allowedExps = {"good", "bad", "average", "terrible", "great"}
 
 postRoutes = Blueprint("postRoutes", __name__)
 
@@ -91,10 +93,40 @@ def post_api():
             400,
         )
     title = data.get("title", "")
+    if bool(data.get("experience")) is True and data.get("experience") not in allowedExps:
+        return (
+            jsonify({"error": (
+                "Experience tag does not match allowed tags. Please select from the list of tags given")}),
+            400,
+        )
+    experience = data.get("experience")
+    # bring out tags, check against allowed tags
+    tag_names = data.get("tags", [])
+    tags = Tag.query.filter(Tag.tagName.in_(tag_names)).all()
+    found_names = {t.tagName for t in tags}
+    invalid = set(tag_names) - found_names
+    if invalid:
+        return (
+            jsonify({"error": (
+                f"Invalid tags: {', '.join(invalid)}"
+            )}),
+            400,
+        )
+    # check if both state and city tags are in since its not required for it to be present
+    # but if one is present both need to be.
+    if bool(data.get("city")) != bool(data.get("state")):
+        return (
+            jsonify({"error": (
+                "Please include both a city and state if you would like to tag a location")}),
+            400,
+        )
+    state = data.get("state")
+    city = data.get("city")
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
+    s3_obj = urllib.parse.unquote(
+        document.split("/")[-1]) if document else None
     # 1. Cheap regex screen on the text.
     title_reason, description_reason = regex_check(title, description)
     if title_reason or description_reason:
@@ -118,11 +150,17 @@ def post_api():
             user_id=user_id,
             title=title,
             description=description,
+            state=state,
+            city=city,
+            experience=experience,
             s3_url=document,
             review_status="pending_review",
             review_reason=verdict.reason,
         )
         db.session.add(held_post)
+        db.session.flush()
+        for tag in tags:
+            db.session.add(PostTags(postId=held_post.id, tagId=tag.id))
         db.session.commit()
         return (
             jsonify(
@@ -137,15 +175,24 @@ def post_api():
             202,
         )
     new_post = Post(
-        user_id=user_id, title=title, description=description, s3_url=document
+        user_id=user_id,
+        title=title,
+        description=description,
+        s3_url=document,
+        state=state,
+        city=city,
+        experience=experience
     )
     db.session.add(new_post)
+    db.session.flush()
+    for tag in tags:
+        db.session.add(PostTags(postId=new_post.id, tagId=tag.id))
     db.session.commit()
     return jsonify({"message": "Post created"}), 200
 
 
-@postRoutes.route("/post", methods=["GET"])
-@jwt_required(optional=True)
+@ postRoutes.route("/post", methods=["GET"])
+@ jwt_required(optional=True)
 def post_get_api():
     user_id = get_jwt_identity()
     # Optional author filter, used by profile pages. "me" resolves to the
@@ -166,7 +213,8 @@ def post_get_api():
         disliked = False
         if user_id:
             liked = (
-                PostLikes.query.filter_by(postId=post.id, userSentLike=user_id).first()
+                PostLikes.query.filter_by(
+                    postId=post.id, userSentLike=user_id).first()
                 is not None
             )
             disliked = (
@@ -175,6 +223,13 @@ def post_get_api():
                 ).first()
                 is not None
             )
+        post_tag_names = (
+            db.session.query(Tag.tagName)
+            .join(PostTags, PostTags.tagId == Tag.id)
+            .filter(PostTags.postId == post.id)
+            .all()
+        )
+        tags = [t.tagName for t in post_tag_names]
         postList.append(
             {
                 "id": post.id,
@@ -186,6 +241,11 @@ def post_get_api():
                 "dislikes": PostDislikes.query.filter_by(postId=post.id).count(),
                 "liked": liked,
                 "disliked": disliked,
+                "city": post.city,
+                "state": post.state,
+                "experience": post.experience,
+                "tags": tags
+
             }
         )
     return jsonify(postList)

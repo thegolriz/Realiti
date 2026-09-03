@@ -60,6 +60,18 @@ class Post(db.Model):
     state = db.Column(db.String, nullable=True)
 
 
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tagName = db.Column(db.String, unique=True, nullable=False)
+
+
+class PostTags(db.Model):
+    postId = db.Column(db.Integer, db.ForeignKey(
+        "post.id"), nullable=False, primary_key=True)
+    tagId = db.Column(db.Integer, db.ForeignKey("tag.id"),
+                      nullable=False, primary_key=True)
+
+
 class PostLikes(db.Model):
     postId = db.Column(
         db.Integer, db.ForeignKey("post.id"), nullable=False, primary_key=True
