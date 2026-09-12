@@ -35,6 +35,15 @@ const SECTIONS = [
     body: 'Posts that fail moderation are blocked before they are published. Repeated or severe violations may affect your account. (Details to be finalized.)',
     items: [],
   },
+  {
+    title: 'Image/Documents for posts',
+    body: 'Attaching an image or document for a post helps your post stand out',
+    items: [
+      'Images and documents do not show up on posts to protect privacy of users',
+      'They are reviewd by our moderation pipeline to see if they fit the post you create',
+      'Additional investigating may be done for images or documents on a case by case basis',
+    ],
+  },
 ];
 
 export default function Guidelines(props) {

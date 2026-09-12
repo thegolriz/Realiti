@@ -5,6 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import * as React from 'react';
 import PostButton from '../components/PostButton.jsx';
+import ExperienceTag from '../components/ExperienceTag';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
 import Notification, {
@@ -209,7 +210,15 @@ export default function Post(props) {
             <br /> Without one your post will have a warning label attached. Learn More
             <br /> Accepted files: images (JPEG, PNG, and similar) and PDF.
           </FormHelperText>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mx: 2 }}
+          >
+            <ExperienceTag boxSx={{ minWidth: 0, width: 150 }} />
+
+            <ExperienceTag boxSx={{ minWidth: 0, width: 150 }} />
+          </Box>
         </Box>
+
         <Box>
           <PostButton text={submitting ? 'Posting...' : 'Post'} disabled={submitting} />
         </Box>
