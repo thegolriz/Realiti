@@ -191,8 +191,8 @@ def post_api():
     return jsonify({"message": "Post created"}), 200
 
 
-@ postRoutes.route("/post", methods=["GET"])
-@ jwt_required(optional=True)
+@postRoutes.route("/post", methods=["GET"])
+@jwt_required(optional=True)
 def post_get_api():
     user_id = get_jwt_identity()
     # Optional author filter, used by profile pages. "me" resolves to the
@@ -249,3 +249,9 @@ def post_get_api():
             }
         )
     return jsonify(postList)
+
+
+@postRoutes.route("/tags", methods=["GET"])
+def tags_get_api():
+    tags = Tag.query.all()
+    return jsonify([t.tagName for t in tags])
