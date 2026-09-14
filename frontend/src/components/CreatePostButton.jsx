@@ -25,7 +25,7 @@ const CreatePostButton = () => {
       <Button variant="outlined" endIcon={<AddOutlinedIcon />} onClick={handleOpen}>
         What's on your mind
       </Button>
-      <Dialog onClose={handleClose} open={open} sx={{}}>
+      <Dialog onClose={handleClose} open={open} fullWidth maxWidth="sm">
         <Post closeProp={handleClose} />
       </Dialog>
     </>

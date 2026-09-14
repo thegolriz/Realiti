@@ -143,7 +143,7 @@ export default function Post(props) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            width: { xs: '75vw', md: '25vw' },
+            width: '85%',
           }}
         >
           <TextField
@@ -168,7 +168,16 @@ export default function Post(props) {
             sx={{ '& .MuiOutlinedInput-root': { height: 'auto' } }}
           />
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '85%',
+            minWidth: 0,
+            py: 2,
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Button
               component="label"
@@ -211,7 +220,15 @@ export default function Post(props) {
             <br /> Accepted files: images (JPEG, PNG, and similar) and PDF.
           </FormHelperText>
           <Box
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mx: 2 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              width: 400,
+              maxWidth: '100%',
+              mx: 2,
+            }}
           >
             <ExperienceTag boxSx={{ minWidth: 0, width: 150 }} />
 
