@@ -36,6 +36,7 @@ export default function Post(props) {
   const submittingRef = React.useRef(false);
   const mountedRef = React.useRef(true);
   const { notification, notify, closeNotification } = useNotification();
+  const [experience, setExperience] = React.useState(null);
 
   React.useEffect(
     () => () => {
@@ -216,7 +217,10 @@ export default function Post(props) {
             }}
           >
             A document/image to show proof of your post will go a long way.
-            <br /> Without one your post will have a warning label attached. Learn More
+            <br /> Without one your post will have a warning label attached.{' '}
+            <Link component={RouterLink} to="/guidelines" color="inherit" underline="always">
+              Learn More
+            </Link>
             <br /> Accepted files: images (JPEG, PNG, and similar) and PDF.
           </FormHelperText>
           <Box
@@ -232,7 +236,10 @@ export default function Post(props) {
           >
             <ExperienceTag boxSx={{ minWidth: 0, width: 150 }} />
 
-            <ExperienceTag boxSx={{ minWidth: 0, width: 150 }} />
+            <ExperienceTag
+              onChange={(_, v) => setExperience(v)}
+              boxSx={{ minWidth: 0, width: 150 }}
+            />
           </Box>
         </Box>
 
