@@ -218,7 +218,7 @@ def post_get_api():
     query = Post.query.filter_by(review_status="clean")
     if author:
         query = query.filter_by(user_id=author)
-    postInfo = query.all()
+    postInfo = query.order_by(Post.posted_at.desc()).all()
     postList = []
     for post in postInfo:
         liked = False
