@@ -42,6 +42,8 @@ const Dashboard = props => {
       liked={data.liked}
       dislikeCount={data.dislikes}
       disliked={data.disliked}
+      experience={data.experience}
+      tags={data.tags}
     />
   ));
   return (

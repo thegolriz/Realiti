@@ -106,7 +106,13 @@ export default function Post(props) {
         documentUrl = presignedUrl.split('?')[0];
         await axios.put(presignedUrl, fileHolder);
       }
-      await createPost({ title, experience, description, document: documentUrl });
+      await createPost({
+        title,
+        experience,
+        description,
+        document: documentUrl,
+        tags: tag ? [tag] : [],
+      });
       closeProp && closeProp();
     } catch (err) {
       // Moderation failures can flag the title and description separately;
@@ -236,7 +242,7 @@ export default function Post(props) {
               mx: 2,
             }}
           >
-            <Tags onChange={(_, v) => setTag(v)} valus={tag} boxSx={{ minWidth: 0, width: 150 }} />
+            <Tags onChange={(_, v) => setTag(v)} value={tag} boxSx={{ minWidth: 0, width: 150 }} />
 
             <ExperienceTag
               onChange={(_, v) => setExperience(v)}

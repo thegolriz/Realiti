@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import { Box, Typography, Stack, Chip } from '@mui/material';
 import ProfileAvatar from './ProfileAvatar';
 import LikeButton from './LikeButton';
 import DislikeButton from './DislikeButton';
@@ -19,6 +19,8 @@ const PostCard = ({
   liked,
   dislikeCount,
   disliked,
+  experience,
+  tags,
 }) => {
   const [replies, setReplies] = useState([]);
 
@@ -31,6 +33,7 @@ const PostCard = ({
   useEffect(() => {
     fetchReplies();
   }, [fetchReplies]);
+
 
   return (
     <Box sx={{ minWidth: '100%' }}>
@@ -70,6 +73,10 @@ const PostCard = ({
           <LikeButton postId={postId} initialCount={likeCount} initialLiked={liked} />
           <DislikeButton postId={postId} initialCount={dislikeCount} initialDisliked={disliked} />
           <ReplyButton postId={postId} onReplySubmitted={fetchReplies} />
+          {experience && <Chip label={experience} size="small" />}
+          {tags?.map(tag => (
+            <Chip key={tag} label={tag} size="small" variant="outlined" />
+          ))}
         </Box>
       </Box>
       {replies.map(reply => (
