@@ -48,6 +48,25 @@ class Post(db.Model):
     # removed (taken down by an admin). The public feed shows only "clean".
     review_status = db.Column(db.String, default="clean", server_default="clean")
     review_reason = db.Column(db.Text, nullable=True)
+    # post tags, no requird, since not every poster will want to
+    # give info. Nor will every post fall into the tags.
+    experience = db.Column(db.String, nullable=True)
+    city = db.Column(db.String, nullable=True)
+    state = db.Column(db.String, nullable=True)
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tagName = db.Column(db.String, unique=True, nullable=False)
+
+
+class PostTags(db.Model):
+    postId = db.Column(
+        db.Integer, db.ForeignKey("post.id"), nullable=False, primary_key=True
+    )
+    tagId = db.Column(
+        db.Integer, db.ForeignKey("tag.id"), nullable=False, primary_key=True
+    )
 
 
 class PostLikes(db.Model):

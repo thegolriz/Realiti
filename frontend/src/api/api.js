@@ -97,4 +97,5 @@ export const approvePost = id => api.post(`/admin/review-posts/${id}/approve`, {
 export const rejectPost = id => api.post(`/admin/review-posts/${id}/reject`, {});
 export const getReports = () => api.get('/admin/reports');
 export const resolveReport = (id, action) => api.post(`/admin/reports/${id}/resolve`, { action });
+export const getTags = () => api.get('/tags');
 export default api;

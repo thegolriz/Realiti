@@ -100,9 +100,11 @@ def create_app():
         Post,
         PostDislikes,
         PostLikes,
+        PostTags,
         Realtor,
         Replies,
         Report,
+        Tag,
         User,
     )
 

@@ -3,8 +3,10 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
-import * as React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PostButton from '../components/PostButton.jsx';
+import ExperienceTag from '../components/ExperienceTag';
+import Tags from '../components/Tags';
 import { createPost, upload } from '../api/api.js';
 import axios from 'axios';
 import Notification, {
@@ -27,16 +29,18 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function Post(props) {
   const { closeProp } = props;
-  const [descriptionError, setDescriptionError] = React.useState(false);
-  const [descriptionErrorMessage, setDescriptionErrorMessage] = React.useState('');
-  const [fileHolder, setFileHolder] = React.useState();
-  const [submitting, setSubmitting] = React.useState(false);
-  const fileInputRef = React.useRef(null);
-  const submittingRef = React.useRef(false);
-  const mountedRef = React.useRef(true);
+  const [descriptionError, setDescriptionError] = useState(false);
+  const [descriptionErrorMessage, setDescriptionErrorMessage] = useState('');
+  const [fileHolder, setFileHolder] = useState();
+  const [submitting, setSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
+  const submittingRef = useRef(false);
+  const mountedRef = useRef(true);
   const { notification, notify, closeNotification } = useNotification();
+  const [experience, setExperience] = useState(null);
+  const [tag, setTag] = useState(null);
 
-  React.useEffect(
+  useEffect(
     () => () => {
       mountedRef.current = false;
     },
@@ -102,7 +106,13 @@ export default function Post(props) {
         documentUrl = presignedUrl.split('?')[0];
         await axios.put(presignedUrl, fileHolder);
       }
-      await createPost({ title, description, document: documentUrl });
+      await createPost({
+        title,
+        experience,
+        description,
+        document: documentUrl,
+        tags: tag ? [tag] : [],
+      });
       closeProp && closeProp();
     } catch (err) {
       // Moderation failures can flag the title and description separately;
@@ -142,7 +152,7 @@ export default function Post(props) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            width: { xs: '75vw', md: '25vw' },
+            width: '85%',
           }}
         >
           <TextField
@@ -167,7 +177,16 @@ export default function Post(props) {
             sx={{ '& .MuiOutlinedInput-root': { height: 'auto' } }}
           />
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '85%',
+            minWidth: 0,
+            py: 2,
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Button
               component="label"
@@ -206,10 +225,33 @@ export default function Post(props) {
             }}
           >
             A document/image to show proof of your post will go a long way.
-            <br /> Without one your post will have a warning label attached. Learn More
+            <br /> Without one your post will have a warning label attached.{' '}
+            <Link component={RouterLink} to="/guidelines" color="inherit" underline="always">
+              Learn More
+            </Link>
             <br /> Accepted files: images (JPEG, PNG, and similar) and PDF.
           </FormHelperText>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              width: 400,
+              maxWidth: '100%',
+              mx: 2,
+            }}
+          >
+            <Tags onChange={(_, v) => setTag(v)} value={tag} boxSx={{ minWidth: 0, width: 150 }} />
+
+            <ExperienceTag
+              onChange={(_, v) => setExperience(v)}
+              value={experience}
+              boxSx={{ minWidth: 0, width: 150 }}
+            />
+          </Box>
         </Box>
+
         <Box>
           <PostButton text={submitting ? 'Posting...' : 'Post'} disabled={submitting} />
         </Box>

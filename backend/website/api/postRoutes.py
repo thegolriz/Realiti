@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes
+from website.models import Post, PostDislikes, PostLikes, PostTags, Tag
 
 from .claudeModeration import DECISION_BLOCK, DECISION_REVIEW, run_claude_checks
 from .moderationRoute import (
@@ -15,6 +15,8 @@ from .moderationRoute import (
     moderation_check,
     regex_check,
 )
+
+allowedExps = {"good", "bad", "average", "terrible", "great"}
 
 postRoutes = Blueprint("postRoutes", __name__)
 
@@ -91,6 +93,48 @@ def post_api():
             400,
         )
     title = data.get("title", "")
+    if (
+        bool(data.get("experience")) is True
+        and data.get("experience") not in allowedExps
+    ):
+        return (
+            jsonify(
+                {
+                    "error": (
+                        "Experience tag does not match allowed tags. "
+                        "Please select from the list of tags given"
+                    )
+                }
+            ),
+            400,
+        )
+    experience = data.get("experience")
+    # bring out tags, check against allowed tags
+    tag_names = data.get("tags", [])
+    tags = Tag.query.filter(Tag.tagName.in_(tag_names)).all()
+    found_names = {t.tagName for t in tags}
+    invalid = set(tag_names) - found_names
+    if invalid:
+        return (
+            jsonify({"error": (f"Invalid tags: {', '.join(invalid)}")}),
+            400,
+        )
+    # check if both state and city tags are in since its not required for it
+    # to be present but if one is present both need to be.
+    if bool(data.get("city")) != bool(data.get("state")):
+        return (
+            jsonify(
+                {
+                    "error": (
+                        "Please include both a city and state if you would "
+                        "like to tag a location"
+                    )
+                }
+            ),
+            400,
+        )
+    state = data.get("state")
+    city = data.get("city")
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
@@ -118,11 +162,17 @@ def post_api():
             user_id=user_id,
             title=title,
             description=description,
+            state=state,
+            city=city,
+            experience=experience,
             s3_url=document,
             review_status="pending_review",
             review_reason=verdict.reason,
         )
         db.session.add(held_post)
+        db.session.flush()
+        for tag in tags:
+            db.session.add(PostTags(postId=held_post.id, tagId=tag.id))
         db.session.commit()
         return (
             jsonify(
@@ -137,9 +187,18 @@ def post_api():
             202,
         )
     new_post = Post(
-        user_id=user_id, title=title, description=description, s3_url=document
+        user_id=user_id,
+        title=title,
+        description=description,
+        s3_url=document,
+        state=state,
+        city=city,
+        experience=experience,
     )
     db.session.add(new_post)
+    db.session.flush()
+    for tag in tags:
+        db.session.add(PostTags(postId=new_post.id, tagId=tag.id))
     db.session.commit()
     return jsonify({"message": "Post created"}), 200
 
@@ -159,7 +218,7 @@ def post_get_api():
     query = Post.query.filter_by(review_status="clean")
     if author:
         query = query.filter_by(user_id=author)
-    postInfo = query.all()
+    postInfo = query.order_by(Post.posted_at.desc()).all()
     postList = []
     for post in postInfo:
         liked = False
@@ -175,6 +234,13 @@ def post_get_api():
                 ).first()
                 is not None
             )
+        post_tag_names = (
+            db.session.query(Tag.tagName)
+            .join(PostTags, PostTags.tagId == Tag.id)
+            .filter(PostTags.postId == post.id)
+            .all()
+        )
+        tags = [t.tagName for t in post_tag_names]
         postList.append(
             {
                 "id": post.id,
@@ -186,6 +252,16 @@ def post_get_api():
                 "dislikes": PostDislikes.query.filter_by(postId=post.id).count(),
                 "liked": liked,
                 "disliked": disliked,
+                "city": post.city,
+                "state": post.state,
+                "experience": post.experience,
+                "tags": tags,
             }
         )
     return jsonify(postList)
+
+
+@postRoutes.route("/tags", methods=["GET"])
+def tags_get_api():
+    tags = Tag.query.all()
+    return jsonify([t.tagName for t in tags])

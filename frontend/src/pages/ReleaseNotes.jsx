@@ -11,6 +11,17 @@ const SECTIONS = [
     items: [],
   },
   {
+    title: 'Update 09/22/2026',
+    body: 'You can now tag posts',
+    items: [
+      'Two vairants of tags have been added.',
+      'Expierence: talk about your expierence during some sort of interaction that happened.',
+      'Tag: A generic tag to help others know what your post is about',
+      'Do I need to tag a post?',
+      'Answer: No! Tags are optional, happy posting!',
+    ],
+  },
+  {
     title: 'Update 08/31/2026',
     body: 'Password changes',
     items: [

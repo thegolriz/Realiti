@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
@@ -32,13 +32,13 @@ export default function Notification({ open, message, severity = 'error', onClos
 const CLOSE_TRANSITION_MS = 300;
 
 export function useNotification() {
-  const [notification, setNotification] = React.useState({
+  const [notification, setNotification] = useState({
     open: false,
     message: '',
     severity: 'error',
   });
-  const queueRef = React.useRef([]);
-  const advancingRef = React.useRef(false);
+  const queueRef = useRef([]);
+  const advancingRef = useRef(false);
 
   const showNext = () => {
     if (queueRef.current.length === 0) {
