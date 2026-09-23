@@ -34,7 +34,6 @@ const PostCard = ({
     fetchReplies();
   }, [fetchReplies]);
 
-
   return (
     <Box sx={{ minWidth: '100%' }}>
       <Box
