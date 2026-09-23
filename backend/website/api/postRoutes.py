@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes, Tag, PostTags
+from website.models import Post, PostDislikes, PostLikes, PostTags, Tag
 
 from .claudeModeration import DECISION_BLOCK, DECISION_REVIEW, run_claude_checks
 from .moderationRoute import (
@@ -93,10 +93,19 @@ def post_api():
             400,
         )
     title = data.get("title", "")
-    if bool(data.get("experience")) is True and data.get("experience") not in allowedExps:
+    if (
+        bool(data.get("experience")) is True
+        and data.get("experience") not in allowedExps
+    ):
         return (
-            jsonify({"error": (
-                "Experience tag does not match allowed tags. Please select from the list of tags given")}),
+            jsonify(
+                {
+                    "error": (
+                        "Experience tag does not match allowed tags. "
+                        "Please select from the list of tags given"
+                    )
+                }
+            ),
             400,
         )
     experience = data.get("experience")
@@ -107,17 +116,21 @@ def post_api():
     invalid = set(tag_names) - found_names
     if invalid:
         return (
-            jsonify({"error": (
-                f"Invalid tags: {', '.join(invalid)}"
-            )}),
+            jsonify({"error": (f"Invalid tags: {', '.join(invalid)}")}),
             400,
         )
-    # check if both state and city tags are in since its not required for it to be present
-    # but if one is present both need to be.
+    # check if both state and city tags are in since its not required for it
+    # to be present but if one is present both need to be.
     if bool(data.get("city")) != bool(data.get("state")):
         return (
-            jsonify({"error": (
-                "Please include both a city and state if you would like to tag a location")}),
+            jsonify(
+                {
+                    "error": (
+                        "Please include both a city and state if you would "
+                        "like to tag a location"
+                    )
+                }
+            ),
             400,
         )
     state = data.get("state")
@@ -125,8 +138,7 @@ def post_api():
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(
-        document.split("/")[-1]) if document else None
+    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
     # 1. Cheap regex screen on the text.
     title_reason, description_reason = regex_check(title, description)
     if title_reason or description_reason:
@@ -181,7 +193,7 @@ def post_api():
         s3_url=document,
         state=state,
         city=city,
-        experience=experience
+        experience=experience,
     )
     db.session.add(new_post)
     db.session.flush()
@@ -213,8 +225,7 @@ def post_get_api():
         disliked = False
         if user_id:
             liked = (
-                PostLikes.query.filter_by(
-                    postId=post.id, userSentLike=user_id).first()
+                PostLikes.query.filter_by(postId=post.id, userSentLike=user_id).first()
                 is not None
             )
             disliked = (
@@ -244,8 +255,7 @@ def post_get_api():
                 "city": post.city,
                 "state": post.state,
                 "experience": post.experience,
-                "tags": tags
-
+                "tags": tags,
             }
         )
     return jsonify(postList)
