@@ -98,8 +98,7 @@ def _verdict(system, content):
         max_tokens=1000,
         system=system,
         messages=[{"role": "user", "content": content}],
-        output_config={"format": {
-            "type": "json_schema", "schema": _VERDICT_SCHEMA}},
+        output_config={"format": {"type": "json_schema", "schema": _VERDICT_SCHEMA}},
     )
     # With output_config the model returns the JSON verdict in a text block.
     text = next((b.text for b in resp.content if b.type == "text"), None)
