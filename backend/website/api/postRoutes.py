@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes, PostTags, Tag, Realtor
+from website.models import Post, PostDislikes, PostLikes, PostTags, Realtor, Tag
 
 from . import claudeModeration, claudeRealtorModeration
 from .claudeModeration import DECISION_BLOCK, DECISION_REVIEW
@@ -139,8 +139,7 @@ def post_api():
     description = data["description"]
     document = data.get("document")
     user_id = get_jwt_identity()
-    s3_obj = urllib.parse.unquote(
-        document.split("/")[-1]) if document else None
+    s3_obj = urllib.parse.unquote(document.split("/")[-1]) if document else None
     # 1. Cheap regex screen on the text.
     title_reason, description_reason = regex_check(title, description)
     if title_reason or description_reason:
@@ -154,14 +153,11 @@ def post_api():
         return jsonify({"error": "This post contains inappropriate content"}), 400
     # 3. Claude layer: text, then media, then media-vs-description.
     verdict = None
-    realtor = Realtor.query.filter_by(
-        user_id=user_id, is_verified=True).first()
+    realtor = Realtor.query.filter_by(user_id=user_id, is_verified=True).first()
     if realtor is not None:
-        verdict = claudeRealtorModeration.run_claude_checks(
-            title, description, s3_obj)
+        verdict = claudeRealtorModeration.run_claude_checks(title, description, s3_obj)
     else:
-        verdict = claudeModeration.run_claude_checks(
-            title, description, s3_obj)
+        verdict = claudeModeration.run_claude_checks(title, description, s3_obj)
     if verdict and verdict.decision == DECISION_BLOCK:
         return jsonify({"error": verdict.reason}), 400
     if verdict and verdict.decision == DECISION_REVIEW:
@@ -235,8 +231,7 @@ def post_get_api():
         disliked = False
         if user_id:
             liked = (
-                PostLikes.query.filter_by(
-                    postId=post.id, userSentLike=user_id).first()
+                PostLikes.query.filter_by(postId=post.id, userSentLike=user_id).first()
                 is not None
             )
             disliked = (
