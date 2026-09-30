@@ -20,7 +20,10 @@ def _offline_claude(monkeypatch):
     # (no wasted API round-trips, no billing if a real key is in the env).
     # Tests that need to observe it can override this with their own patch.
     monkeypatch.setattr(
-        "website.api.postRoutes.run_claude_checks", lambda *a, **k: None
+        "website.api.claudeModeration.run_claude_checks", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        "website.api.claudeRealtorModeration.run_claude_checks", lambda *a, **k: None
     )
 
 

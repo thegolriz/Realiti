@@ -26,7 +26,7 @@ def _make_admin(client, email="admin@test.test", password="1234567893939393939")
 
 def _force_review(monkeypatch):
     monkeypatch.setattr(
-        "website.api.postRoutes.run_claude_checks",
+        "website.api.claudeModeration.run_claude_checks",
         lambda *a, **k: REVIEW_VERDICT,
     )
 
