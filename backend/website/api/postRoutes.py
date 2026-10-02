@@ -192,6 +192,9 @@ def post_api():
             ),
             202,
         )
+    verification_status = None
+    if document:
+        verification_status = "pending"
     new_post = Post(
         user_id=user_id,
         title=title,
@@ -200,6 +203,7 @@ def post_api():
         state=state,
         city=city,
         experience=experience,
+        verification_status=verification_status,
     )
     db.session.add(new_post)
     db.session.flush()
