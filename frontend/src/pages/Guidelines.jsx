@@ -27,12 +27,17 @@ const SECTIONS = [
   },
   {
     title: 'Proof & accuracy',
-    body: 'Attaching a document or image to back up your experience builds trust. Posts without supporting proof may carry a warning label.',
+    body: 'Attaching a document or image helps verify your experience. Posts with an image or document will display a verified badge once approved.',
     items: [],
   },
   {
     title: 'Enforcement',
     body: 'Posts that fail moderation are blocked before they are published. Repeated or severe violations may affect your account. (Details to be finalized.)',
+    items: [],
+  },
+  {
+    title: 'Held posts',
+    body: 'Posts that do not clearly pass or fail automated moderation are held for manual review. This typically takes 24-72 hours, though it may take longer during periods of high traffic. Once reviewed, the post will either go live or be rejected.',
     items: [],
   },
   {
