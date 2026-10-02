@@ -82,6 +82,7 @@ export default function Profile(props) {
                 liked={data.liked}
                 dislikeCount={data.dislikes}
                 disliked={data.disliked}
+                verificationStatus={data.verification_status}
               />
             ))
           )}

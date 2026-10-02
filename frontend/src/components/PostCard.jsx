@@ -7,6 +7,7 @@ import ReplyButton from './ReplyButton';
 import ReportButton from './ReportButton';
 import ReplyCard from './ReplyCard';
 import { getReplies } from '../api/api';
+import VerifiedIcon from '@mui/icons-material/Verified';
 
 const PostCard = ({
   postTitle,
@@ -21,6 +22,7 @@ const PostCard = ({
   disliked,
   experience,
   tags,
+  verificationStatus,
 }) => {
   const [replies, setReplies] = useState([]);
 
@@ -76,6 +78,7 @@ const PostCard = ({
           {tags?.map(tag => (
             <Chip key={tag} label={tag} size="small" variant="outlined" />
           ))}
+          {verificationStatus === 'verified' && <VerifiedIcon />}
         </Box>
       </Box>
       {replies.map(reply => (
