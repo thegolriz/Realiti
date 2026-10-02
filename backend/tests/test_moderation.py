@@ -239,3 +239,13 @@ def test_moderation_check_none_returns_true():
 
 def test_moderation_check_empty_string_returns_true():
     assert moderation_check("") is True
+
+
+def test_moderation_check_pdf_skips_rekognition(monkeypatch):
+    """Rekognition only accepts JPEG/PNG; a PDF must never reach it."""
+
+    def _fail_if_called(*args, **kwargs):
+        raise AssertionError("boto3.client should not be called for a PDF")
+
+    monkeypatch.setattr("website.api.moderationRoute.boto3.client", _fail_if_called)
+    assert moderation_check("user1_2026-01-01_proof.pdf") is True

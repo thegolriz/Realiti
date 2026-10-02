@@ -127,3 +127,37 @@ def test_report_dismiss_keeps_post(client, auth_headers, post_id):
 def test_report_requires_reason(client, auth_headers, post_id):
     resp = client.post("/api/report", json={"postId": post_id}, headers=auth_headers)
     assert resp.status_code == 400
+
+
+def test_document_url_requires_admin(client, auth_headers):
+    resp = client.get("/api/admin/verify_posts/1/document-url", headers=auth_headers)
+    assert resp.status_code == 403
+
+
+def test_document_url_404_without_document(client, auth_headers, post_id):
+    admin = _make_admin(client)
+    resp = client.get(f"/api/admin/verify_posts/{post_id}/document-url", headers=admin)
+    assert resp.status_code == 404
+
+
+def test_document_url_returns_presigned_get(client, auth_headers, monkeypatch):
+    monkeypatch.setattr(
+        "website.api.adminRoutes.create_presigned_url",
+        lambda bucket, key, region, **kwargs: f"https://signed/{key}",
+    )
+    client.post(
+        "/api/post",
+        json={
+            "description": "has a document",
+            "document": "https://bucket.s3.amazonaws.com/1_2026-01-01_proof.pdf",
+        },
+        headers=auth_headers,
+    )
+    pending_post_id = client.get("/api/post").get_json()[0]["id"]
+
+    admin = _make_admin(client)
+    resp = client.get(
+        f"/api/admin/verify_posts/{pending_post_id}/document-url", headers=admin
+    )
+    assert resp.status_code == 200
+    assert resp.get_json() == {"url": "https://signed/1_2026-01-01_proof.pdf"}
