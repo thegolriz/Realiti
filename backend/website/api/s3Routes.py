@@ -11,13 +11,25 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 s3Routes = Blueprint("s3Routes", __name__)
 
 
-def create_presigned_url(bucket_name, object_name, region_name, expiration=3600):
+def create_presigned_url(
+    bucket_name,
+    object_name,
+    region_name,
+    expiration=3600,
+    client_method="put_object",
+    extra_params=None,
+):
     """Generate a presigned URL to share an S3 object
 
     :param bucket_name: string
     :param object_name: string
     :param region_name: string
     :param expiration: Time in seconds for the presigned URL to remain valid
+    :param client_method: "put_object" to upload (default), "get_object" to read
+    :param extra_params: optional dict merged into the request Params, e.g.
+        {"ResponseContentType": "application/pdf",
+        "ResponseContentDisposition": "inline"} to control how a GET is
+        served back to the browser
     :return: Presigned URL as string. If error, returns None.
     """
 
@@ -27,10 +39,13 @@ def create_presigned_url(bucket_name, object_name, region_name, expiration=3600)
         region_name=region_name,
         config=Config(signature_version="s3v4"),
     )
+    params = {"Bucket": bucket_name, "Key": object_name}
+    if extra_params:
+        params.update(extra_params)
     try:
         response = s3_client.generate_presigned_url(
-            "put_object",
-            Params={"Bucket": bucket_name, "Key": object_name},
+            client_method,
+            Params=params,
             ExpiresIn=expiration,
         )
     except ClientError as e:

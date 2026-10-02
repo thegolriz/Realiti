@@ -5,9 +5,17 @@ import boto3
 from better_profanity import profanity
 from botocore.config import Config
 
+# Rekognition's detect_moderation_labels only accepts JPEG/PNG. Anything
+# else (PDFs, etc.) skips this layer; it still gets screened by the Claude
+# layer (claudeModeration.check_media) downstream.
+_REKOGNITION_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+
 
 def moderation_check(s3_object):
     if not s3_object:
+        return True
+    _, ext = os.path.splitext(s3_object.lower())
+    if ext not in _REKOGNITION_EXTENSIONS:
         return True
     s3_bucket = os.getenv("S3_BUCKET")
     s3_region = os.getenv("S3_REGION")
