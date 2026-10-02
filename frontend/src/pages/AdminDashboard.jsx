@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Button, Stack, Divider, Card, CardContent } from '@mui/material';
+import { Box, Typography, Button, Stack, Divider, Card, CardContent, Link } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
 import NavBar from '../components/NavBar.jsx';
@@ -8,11 +8,22 @@ import Notification, {
   getServerError,
   serverErrorSeverity,
 } from '../components/Notification.jsx';
-import { getReviewPosts, approvePost, rejectPost, getReports, resolveReport } from '../api/api';
+import {
+  getReviewPosts,
+  approvePost,
+  rejectPost,
+  getReports,
+  resolveReport,
+  getPendingVerification,
+  verifyPost,
+  rejectVerification,
+  getDocumentUrl,
+} from '../api/api';
 
 export default function AdminDashboard(props) {
   const [reviewPosts, setReviewPosts] = useState([]);
   const [reports, setReports] = useState([]);
+  const [pendingVerification, setPendingVerification] = useState([]);
   const { notification, notify, closeNotification } = useNotification();
 
   const showError = err => {
@@ -26,6 +37,9 @@ export default function AdminDashboard(props) {
       .catch(showError);
     getReports()
       .then(res => setReports(res.data))
+      .catch(showError);
+    getPendingVerification()
+      .then(res => setPendingVerification(res.data))
       .catch(showError);
   };
 
@@ -83,6 +97,58 @@ export default function AdminDashboard(props) {
                     variant="outlined"
                     color="error"
                     onClick={() => runAction(rejectPost(post.id), 'Post removed.')}
+                  >
+                    Reject
+                  </Button>
+                </Stack>
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Pending review ({pendingVerification.length})
+        </Typography>
+        <Stack spacing={2} sx={{ mb: 4 }}>
+          {pendingVerification.length === 0 && (
+            <Typography color="text.secondary">Nothing pending verification.</Typography>
+          )}
+          {pendingVerification.map(post => (
+            <Card key={post.id} variant="outlined">
+              <CardContent>
+                <Typography sx={{ fontWeight: 600 }}>{post.title || 'Untitled'}</Typography>
+                <Typography sx={{ mb: 1 }}>{post.description}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  by {post.name}
+                </Typography>
+                {post.s3_url && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <Link
+                      component="button"
+                      type="button"
+                      onClick={() =>
+                        getDocumentUrl(post.id)
+                          .then(res => window.open(res.data.url, '_blank', 'noopener'))
+                          .catch(showError)
+                      }
+                    >
+                      View document
+                    </Link>
+                  </Typography>
+                )}
+                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => runAction(verifyPost(post.id), 'Post verified.')}
+                  >
+                    Verify
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => runAction(rejectVerification(post.id), 'Post rejected.')}
                   >
                     Reject
                   </Button>
