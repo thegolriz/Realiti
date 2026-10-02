@@ -97,5 +97,9 @@ export const approvePost = id => api.post(`/admin/review-posts/${id}/approve`, {
 export const rejectPost = id => api.post(`/admin/review-posts/${id}/reject`, {});
 export const getReports = () => api.get('/admin/reports');
 export const resolveReport = (id, action) => api.post(`/admin/reports/${id}/resolve`, { action });
+export const getPendingVerification = () => api.get('/admin/pending_verification');
+export const verifyPost = id => api.post(`/admin/verify_posts/${id}/verify`, {});
+export const rejectVerification = id => api.post(`/admin/verify_posts/${id}/reject`, {});
+export const getDocumentUrl = id => api.get(`/admin/verify_posts/${id}/document-url`);
 export const getTags = () => api.get('/tags');
 export default api;
