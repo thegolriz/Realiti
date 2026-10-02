@@ -266,6 +266,7 @@ def post_get_api():
                 "state": post.state,
                 "experience": post.experience,
                 "tags": tags,
+                "verification_status": post.verification_status,
             }
         )
     return jsonify(postList)
