@@ -28,13 +28,12 @@ Users can share their experiences with realtors, supported by uploaded images or
 
 ## Moderation Pipeline
 
-1. **Pre-processing**: Regex-based filtering for character substitution and obfuscation
-2. **AI Screening**: AWS Rekognition checks images for inappropriate content. Posts are scored as pass, fail, or needs review.
-    Then claude API gets called. It checks the title, description, image/document giving a Pass/Fail or needs review.
-    Pass/Fail dictates a post, needs review sends it to admin dashboard for final decision, holding the post until reviewed.
+1. **Pre-processing**: Regex-based filtering for profanity, character substitution, and obfuscation
+2. **AI Screening**: AWS Rekognition checks images for inappropriate content as a binary pass/fail; a failing image is deleted from S3.
+    The Claude API then checks the title, description, and image/document, each returning allow, block, or needs review.
 3. **Community Correction**: Realtors and other users can publicly reply to posts and report them, providing a self-correcting layer.
 
-Posts that fail moderation are rejected and the uploaded image is deleted from S3. Edge cases flagged as "needs review" are sent to a manual review queue.
+A block from either layer rejects the post with a 400. Edge cases Claude flags as "needs review" are held, hidden from the public feed, and sent to the admin dashboard for a final decision.
 
 See [backend/README.md](backend/README.md#moderation-pipeline) for how each layer actually works.
 
@@ -52,10 +51,12 @@ Still in progress:
 
 ```
 realiti/
+├── Makefile                    # `make test` shortcut
 ├── docker-compose.yml          # Local dev
 ├── docker-compose.prod.yml     # Production
 ├── .env
 ├── .github/workflows/          # Lint and test CI
+├── load-tests/                 # k6 scripts (rate-limit and throughput)
 ├── backend/
 │   ├── app.py
 │   ├── Dockerfile
@@ -67,17 +68,21 @@ realiti/
 │       ├── __init__.py         # App factory
 │       ├── models.py           # User, Realtor, Post, likes, replies, reports
 │       ├── security.py         # argon2 hashing
+│       ├── HIBPCheck.py        # Have I Been Pwned breach check on signup
 │       └── api/
-│           ├── auth_routes.py      # Signup, login, logout, refresh, account
-│           ├── postRoutes.py       # Post creation and feed
-│           ├── postLike.py         # Like toggle
-│           ├── postDislike.py      # Dislike toggle
-│           ├── repliesRoutes.py    # Replies
-│           ├── reportRoutes.py     # Reporting a post
-│           ├── adminRoutes.py      # Review queue and report handling
-│           ├── s3Routes.py         # Presigned URL generation
-│           ├── moderationRoute.py  # Regex screen and Rekognition
-│           └── claudeModeration.py # Claude moderation layer
+│           ├── auth_routes.py             # Signup, login, logout, refresh, account
+│           ├── postRoutes.py              # Post creation and feed
+│           ├── postLike.py                # Like toggle
+│           ├── postDislike.py             # Dislike toggle
+│           ├── repliesRoutes.py           # Replies
+│           ├── reportRoutes.py            # Reporting a post
+│           ├── adminRoutes.py             # Review queue and report handling
+│           ├── s3Routes.py                # Presigned URL generation
+│           ├── moderationRoute.py         # Regex screen and Rekognition
+│           ├── claudeModeration.py        # Claude moderation layer
+│           ├── claudeRealtorModeration.py # Extra Claude rules for verified realtors
+│           ├── prompts/                   # System prompts for each Claude check
+│           └── data/                      # Common word list for leetspeak detection
 └── frontend/
     ├── package.json
     └── src/
@@ -85,7 +90,7 @@ realiti/
         ├── context/            # AuthContext
         ├── pages/              # Signin, Signup, Post, Dashboard, Profile,
         │                       # Account, AdminDashboard, About, Contact,
-        │                       # Guidelines
+        │                       # Guidelines, ReleaseNotes
         ├── components/         # Reusable UI components
         └── shared-theme/       # MUI theme customizations
 ```

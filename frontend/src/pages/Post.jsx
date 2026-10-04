@@ -224,8 +224,8 @@ export default function Post(props) {
               mt: 0.5,
             }}
           >
-            A document/image to show proof of your post will go a long way.
-            <br /> Without one your post will have a warning label attached.{' '}
+            Attaching a document or image helps verify your experience.
+            <br /> Posts with an image or document will display a verified badge once approved.{' '}
             <Link component={RouterLink} to="/guidelines" color="inherit" underline="always">
               Learn More
             </Link>

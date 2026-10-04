@@ -111,18 +111,18 @@ All routes are prefixed with `/api`.
   "email": "test@test.test",
   "first_name": "tester",
   "last_name": "test",
-  "password": "12345678"
+  "password": "correct-horse-battery"
 }
 ```
 
-Passwords must be at least 8 characters. They are hashed with argon2 before storage. If a stored hash is using older parameters it gets upgraded automatically the next time that user logs in.
+Passwords must be at least 15 characters and are checked against the Have I Been Pwned breach database; a password found in a known breach is rejected. If the HIBP service itself is unreachable, the account is still created with a warning in the response. Passwords are hashed with argon2 before storage. If a stored hash is using older parameters it gets upgraded automatically the next time that user logs in.
 
 #### Example Login
 
 ```json
 {
   "email": "test@test.test",
-  "password": "12345678"
+  "password": "correct-horse-battery"
 }
 ```
 
@@ -144,9 +144,9 @@ CSRF protection is on for cookies, so `/api/refresh` needs the value of the `csr
 
 ```json
 {
-  "current_password": "12345678",
-  "new_password": "87654321",
-  "confirm_password": "87654321"
+  "current_password": "correct-horse-battery",
+  "new_password": "a-different-passphrase",
+  "confirm_password": "a-different-passphrase"
 }
 ```
 
@@ -154,7 +154,7 @@ CSRF protection is on for cookies, so `/api/refresh` needs the value of the `csr
 
 ```json
 {
-  "password": "12345678"
+  "password": "correct-horse-battery"
 }
 ```
 
@@ -277,12 +277,12 @@ curl http://localhost:5001/api/hello
 
 # Signup
 curl -X POST -H "Content-Type: application/json" \
-  -d '{"email":"test@test.test","first_name":"tester","last_name":"test","password":"12345678"}' \
+  -d '{"email":"test@test.test","first_name":"tester","last_name":"test","password":"correct-horse-battery"}' \
   http://localhost:5001/api/signup
 
 # Login. -c writes the refresh cookie to a file so the next call can use it
 curl -c cookies.txt -X POST -H "Content-Type: application/json" \
-  -d '{"email":"test@test.test","password":"12345678"}' \
+  -d '{"email":"test@test.test","password":"correct-horse-battery"}' \
   http://localhost:5001/api/login
 
 # Upload (requires access token)
@@ -359,6 +359,7 @@ backend/
     ├── __init__.py         # App factory (create_app)
     ├── models.py           # SQLAlchemy models
     ├── security.py         # argon2 hashing and verification
+    ├── HIBPCheck.py        # Have I Been Pwned breach check on signup
     └── api/
         ├── routes.py           # Hello
         ├── auth_routes.py      # Signup, login, logout, refresh, account
@@ -370,7 +371,8 @@ backend/
         ├── adminRoutes.py      # Review queue and report handling
         ├── s3Routes.py         # Presigned URL generation for S3 uploads
         ├── moderationRoute.py  # Regex screen and AWS Rekognition
-        ├── claudeModeration.py # Claude moderation layer
+        ├── claudeModeration.py        # Claude moderation layer
+        ├── claudeRealtorModeration.py # Extra rules Claude applies to verified realtors
         ├── prompts/            # System prompts for each Claude check
         └── data/               # Common word list for leetspeak detection
 ```

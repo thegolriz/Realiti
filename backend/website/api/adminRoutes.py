@@ -1,3 +1,5 @@
+import os
+import urllib.parse
 from datetime import datetime, timezone
 from functools import wraps
 
@@ -7,7 +9,21 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from website import db
 from website.models import Post, Report, User
 
+from .s3Routes import create_presigned_url
+
 adminRoutes = Blueprint("adminRoutes", __name__)
+
+# Known-safe content types, so the browser renders these inline instead of
+# downloading them. Anything else just gets ResponseContentDisposition set,
+# with no type override.
+_DOCUMENT_CONTENT_TYPES = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".pdf": "application/pdf",
+}
 
 
 def admin_required(fn):
@@ -50,6 +66,8 @@ def approve_post(post_id):
     if not post:
         return jsonify({"error": "Post does not exist"}), 404
     post.review_status = "clean"
+    if post.s3_url:
+        post.verification_status = "pending"
     db.session.commit()
     return jsonify({"message": "Post approved"}), 200
 
@@ -81,6 +99,58 @@ def open_reports():
             }
         )
     return jsonify(result), 200
+
+
+@adminRoutes.route("/admin/pending_verification", methods=["GET"])
+@admin_required
+def open_pending_verification():
+    pending = Post.query.filter_by(verification_status="pending").all()
+    return jsonify([_serialize_post(p) for p in pending]), 200
+
+
+@adminRoutes.route("/admin/verify_posts/<int:post_id>/document-url", methods=["GET"])
+@admin_required
+def get_document_url(post_id):
+    post = Post.query.get(post_id)
+    if not post or not post.s3_url:
+        return jsonify({"error": "No document for this post"}), 404
+    key = urllib.parse.unquote(post.s3_url.split("/")[-1])
+    _, ext = os.path.splitext(key.lower())
+    extra_params = {"ResponseContentDisposition": "inline"}
+    if ext in _DOCUMENT_CONTENT_TYPES:
+        extra_params["ResponseContentType"] = _DOCUMENT_CONTENT_TYPES[ext]
+    url = create_presigned_url(
+        os.getenv("S3_BUCKET"),
+        key,
+        os.getenv("S3_REGION"),
+        client_method="get_object",
+        extra_params=extra_params,
+    )
+    if url is None:
+        return jsonify({"error": "Failed to create document URL"}), 400
+    return jsonify({"url": url}), 200
+
+
+@adminRoutes.route("/admin/verify_posts/<int:post_id>/verify", methods=["POST"])
+@admin_required
+def verifiy_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"error": "Post does not exist"}), 404
+    post.verification_status = "verified"
+    db.session.commit()
+    return jsonify({"message": "Post verified"})
+
+
+@adminRoutes.route("/admin/verify_posts/<int:post_id>/reject", methods=["POST"])
+@admin_required
+def reject_verification(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"error": "Post does not exist"}), 404
+    post.verification_status = None
+    db.session.commit()
+    return jsonify({"message": "Post does not meet verification standards"}), 200
 
 
 @adminRoutes.route("/admin/reports/<int:report_id>/resolve", methods=["POST"])
