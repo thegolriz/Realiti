@@ -1,7 +1,17 @@
 """Tests for the auth routes: signup, login, refresh, and logout."""
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes, Replies, User
+from website.models import (
+    Post,
+    PostDislikes,
+    PostLikes,
+    PostTags,
+    Realtor,
+    Replies,
+    Report,
+    Tag,
+    User,
+)
 
 
 def _signup_payload(email, password):
@@ -121,6 +131,21 @@ def test_refresh_and_logout_flow(client, userInfo):
     assert logout.status_code == 200
     after = client.post("/api/refresh", headers={"X-CSRF-TOKEN": csrf})
     assert after.status_code in (401, 422)
+
+
+def test_refresh_rejected_for_deleted_user(client, userInfo):
+    email, password = userInfo
+    client.post("/api/signup", json=_signup_payload(email, password))
+    login = client.post("/api/login", json={"email": email, "password": password})
+    csrf = _cookie_value(login, "csrf_refresh_token")
+
+    # Delete the user directly so the refresh cookie survives, as it would on
+    # another device that still holds a copy of the token.
+    db.session.delete(User.query.filter_by(email=email).first())
+    db.session.commit()
+
+    response = client.post("/api/refresh", headers={"X-CSRF-TOKEN": csrf})
+    assert response.status_code == 401
 
 
 def test_login_missing_fields(client):
@@ -285,8 +310,21 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
         parent_reply_id=a_reply_on_b.id,
     )
     db.session.add(child)
+
+    # A tag on A's post, a report against A's post (by B), a report filed by
+    # A on B's post, and a realtor entry A submitted and claimed.
+    tag = Tag(tagName="cascade-test-tag")
+    db.session.add(tag)
+    db.session.flush()
+    tag_id = tag.id
+    db.session.add(PostTags(postId=post_a, tagId=tag_id))
+    db.session.add(Report(post_id=post_a, reporter_id=b_id, reason="on a"))
+    db.session.add(Report(post_id=post_b, reporter_id=a_id, reason="by a"))
+    realtor = Realtor(name="Cascade Realtor", state="CA", user_id=a_id, added_by=a_id)
+    db.session.add(realtor)
     db.session.commit()
     child_id = child.id
+    realtor_id = realtor.id
 
     resp = client.delete(
         "/api/account", json={"password": a_password}, headers=auth_headers
@@ -300,10 +338,20 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
     assert Replies.query.filter_by(postId=post_a).count() == 0
     assert PostLikes.query.filter_by(postId=post_a).count() == 0
     assert PostDislikes.query.filter_by(postId=post_a).count() == 0
+    assert PostTags.query.filter_by(postId=post_a).count() == 0
+    assert Report.query.filter_by(post_id=post_a).count() == 0
 
     # A's activity on other people's content is gone.
     assert Replies.query.filter_by(userReplied=a_id).count() == 0
     assert PostLikes.query.filter_by(userSentLike=a_id).count() == 0
+    assert Report.query.filter_by(reporter_id=a_id).count() == 0
+
+    # Shared rows survive with A's references detached.
+    assert Tag.query.get(tag_id) is not None
+    surviving_realtor = Realtor.query.get(realtor_id)
+    assert surviving_realtor is not None
+    assert surviving_realtor.user_id is None
+    assert surviving_realtor.added_by is None
 
     # B and B's post survive; B's child reply survives with its parent detached.
     assert User.query.get(b_id) is not None

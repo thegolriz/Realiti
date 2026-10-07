@@ -1,6 +1,6 @@
 # Realiti
 
-A social hub where consumers and realtors discuss real estate experiences on even ground. No advertising, no ratings, just honest discussions backed by optional supporting evidence.
+A social hub where consumers and realtors discuss real estate experiences on even ground. No advertising and no aggregate realtor scores, just honest discussions backed by optional supporting evidence. Posts can carry an optional experience tag (bad to great) and be liked or disliked.
 
 Live at [realiti.dev](https://realiti.dev).
 
