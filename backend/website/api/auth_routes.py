@@ -10,7 +10,16 @@ from flask_jwt_extended import (
 
 from website import db, limiter
 from website.HIBPCheck import hashMode
-from website.models import Post, PostDislikes, PostLikes, Replies, User
+from website.models import (
+    Post,
+    PostDislikes,
+    PostLikes,
+    PostTags,
+    Realtor,
+    Replies,
+    Report,
+    User,
+)
 from website.security import DUMMY_HASH, hash_password, needs_rehash, verify_password
 
 auth_routes = Blueprint("auth_routes", __name__)
@@ -64,6 +73,10 @@ def protected():
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
+    # A refresh token can outlive its account (e.g. a copy on another device),
+    # so don't mint access tokens for a user that no longer exists.
+    if not User.query.get(user_id):
+        return jsonify({"error": "user not found"}), 401
     new_token = create_access_token(identity=user_id)
     return jsonify(access_token=new_token), 200
 
@@ -211,6 +224,13 @@ def delete_account():
             PostDislikes.query.filter(PostDislikes.postId.in_(post_ids)).delete(
                 synchronize_session=False
             )
+            # Only the post/tag links; the Tag rows are shared across posts.
+            PostTags.query.filter(PostTags.postId.in_(post_ids)).delete(
+                synchronize_session=False
+            )
+            Report.query.filter(Report.post_id.in_(post_ids)).delete(
+                synchronize_session=False
+            )
 
         # The user's own replies on other people's posts. Detach any child
         # replies that point at them (those belong to other users, on other
@@ -226,6 +246,18 @@ def delete_account():
         PostLikes.query.filter_by(userSentLike=uid).delete(synchronize_session=False)
         PostDislikes.query.filter_by(userSentDislike=uid).delete(
             synchronize_session=False
+        )
+
+        # Reports the user filed on other people's posts.
+        Report.query.filter_by(reporter_id=uid).delete(synchronize_session=False)
+
+        # Realtor entries are a public directory, so they outlive the account;
+        # just drop the links back to it.
+        Realtor.query.filter_by(user_id=uid).update(
+            {Realtor.user_id: None}, synchronize_session=False
+        )
+        Realtor.query.filter_by(added_by=uid).update(
+            {Realtor.added_by: None}, synchronize_session=False
         )
 
         # Finally the user's posts, then the user record itself.
