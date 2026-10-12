@@ -11,6 +11,17 @@ const SECTIONS = [
     items: [],
   },
   {
+    title: 'Update 10/05/2026',
+    body: 'Post verification is now here.',
+    items: [
+      'Posts can now achieve a Verified tag.',
+      'To do so, at post time include a document/image with the Upload button.',
+      'Once the post goes through any post with a document/image will go to the admin dashboard for review',
+      'Once reviewed and accepted a post will carry a new badge to let others know it was verified by an Admin',
+      'Note this process can take 24-72 hours or longer depending on traffic.',
+    ],
+  },
+  {
     title: 'Update 09/22/2026',
     body: 'You can now tag posts',
     items: [
