@@ -1,4 +1,4 @@
-import { Box, Typography, Link, List, ListItem, Divider } from '@mui/material';
+import { Box, Typography, Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
