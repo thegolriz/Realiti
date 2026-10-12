@@ -13,6 +13,9 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import ReleaseNotes from './pages/ReleaseNotes';
+import RealtorVerify from './pages/RealtorVerify';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -39,6 +42,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/realtor-verify"
+            element={
+              <ProtectedRoute>
+                <RealtorVerify />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route
@@ -58,6 +69,8 @@ function App() {
             }
           />
           <Route path="/releasenotes" element={<ReleaseNotes />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

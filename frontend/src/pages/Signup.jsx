@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
@@ -87,6 +89,7 @@ export default function SignUp(props) {
     const password = document.getElementById('password');
     const first_name = document.getElementById('first_name');
     const last_name = document.getElementById('last_name');
+    const agree_terms = document.getElementById('agree_terms');
 
     let isValid = true;
 
@@ -121,6 +124,11 @@ export default function SignUp(props) {
     } else {
       setNameError(false);
       setNameErrorMessage('');
+    }
+
+    if (!agree_terms.checked) {
+      notify('Please agree to the Terms of Service and Privacy Policy.', 'warning');
+      isValid = false;
     }
 
     return isValid;
@@ -242,6 +250,26 @@ export default function SignUp(props) {
               15+ characters seperate by spaces or hyphens <br />
               e.g. 'correct-horse-battery-staple'
             </Typography>
+            <FormControlLabel
+              // `required` makes MUI append an asterisk; no other field shows one.
+              sx={{ '& .MuiFormControlLabel-asterisk': { display: 'none' } }}
+              control={<Checkbox id="agree_terms" name="agree_terms" required />}
+              label={
+                <Typography variant="body2">
+                  I am 18 or older and agree to the{' '}
+                  {/* New tab: the fields are read from the DOM, so leaving
+                      the page would lose everything typed so far. */}
+                  <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                  </Link>
+                  .
+                </Typography>
+              }
+            />
             <Button type="submit" fullWidth variant="contained" disabled={submitting}>
               {submitting ? 'Creating account...' : 'Sign up'}
             </Button>
