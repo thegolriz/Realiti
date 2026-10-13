@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Stack, Typography, CircularProgress } from '@mui/material';
+import { Box, Stack, Typography, CircularProgress, Chip } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeIconDropdown from '../shared-theme/ColorModeIconDropdown';
@@ -39,6 +39,7 @@ export default function Profile(props) {
 
   // No user endpoint yet, so the name rides along on the posts.
   const displayName = posts[0]?.name;
+  const isAgent = posts[0]?.author_is_agent;
 
   return (
     <AppTheme {...props}>
@@ -57,9 +58,12 @@ export default function Profile(props) {
           direction="row"
           sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 2 }}
         >
-          <Typography variant="h4" component="h1">
-            {displayName ?? 'Profile'}
-          </Typography>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <Typography variant="h4" component="h1">
+              {displayName ?? 'Profile'}
+            </Typography>
+            {isAgent && <Chip label="Real estate agent" color="primary" variant="outlined" />}
+          </Stack>
           {isSelf && <ColorModeIconDropdown />}
         </Stack>
         <Stack spacing={1} direction="column" sx={{ alignItems: 'center' }}>
@@ -83,6 +87,7 @@ export default function Profile(props) {
                 dislikeCount={data.dislikes}
                 disliked={data.disliked}
                 verificationStatus={data.verification_status}
+                authorIsAgent={data.author_is_agent}
               />
             ))
           )}

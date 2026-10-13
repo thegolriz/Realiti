@@ -1,24 +1,39 @@
 import { Box, Typography, Link, Card, Stack, Alert, CircularProgress } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import useSearchParams from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
 import NavBar from '../components/NavBar.jsx';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { confirmRealtor } from '../api/api';
+import { getServerError } from '../components/Notification.jsx';
 
 export default function RealtorConfirm(props) {
-  // TODO: replace with state driven by confirmRealtor(token).
   // status: 'loading' | 'success' | 'error'
-  const status = 'loading';
-  const message = '';
+  const [status, setStatus] = useState('loading');
+  const [message, setMessage] = useState('');
   const [params] = useSearchParams();
   const token = params.get('token');
-
+  const sentRef = useRef(false);
   useEffect(() => {
-    if (token === null) {
+    if (!token) {
+      setStatus('error');
+      setMessage('The link is missing its token.');
       return;
     }
-  });
+    if (sentRef.current) {
+      return;
+    }
+    sentRef.current = true;
+    confirmRealtor(token)
+      .then(res => {
+        setStatus('success');
+        setMessage(res.data.message);
+      })
+      .catch(err => {
+        setStatus('error');
+        setMessage(getServerError(err));
+      });
+  }, [token]);
 
   return (
     <AppTheme {...props}>

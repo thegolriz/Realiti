@@ -43,6 +43,7 @@ const Dashboard = props => {
       dislikeCount={data.dislikes}
       disliked={data.disliked}
       verificationStatus={data.verification_status}
+      authorIsAgent={data.author_is_agent}
       experience={data.experience}
       tags={data.tags}
     />
