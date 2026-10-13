@@ -132,3 +132,28 @@ def test_apply_pending_license_does_not_block_others(client, auth_headers):
     other = _second_user(client)
     resp = client.post(URL, json=_application(email="other@test.test"), headers=other)
     assert resp.status_code == 201
+
+
+def test_apply_sends_confirmation_email(client, auth_headers, monkeypatch):
+    sent = []
+    monkeypatch.setattr(
+        "website.api.realtorRoutes.send_verification_email",
+        lambda to, link: sent.append((to, link)) or True,
+    )
+    resp = client.post(URL, json=_application(), headers=auth_headers)
+    assert resp.status_code == 201
+    assert "warning" not in resp.get_json()
+
+    to, link = sent[0]
+    assert to == "test@test.test"
+    assert "/realtor-verify/confirm?token=" in link
+
+
+def test_apply_failed_email_still_saves_with_warning(client, auth_headers, monkeypatch):
+    monkeypatch.setattr(
+        "website.api.realtorRoutes.send_verification_email", lambda *a, **k: False
+    )
+    resp = client.post(URL, json=_application(), headers=auth_headers)
+    assert resp.status_code == 201
+    assert "warning" in resp.get_json()
+    assert RealtorAccount.query.one().status == "email_pending"
