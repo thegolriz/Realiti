@@ -78,3 +78,58 @@ def test_realtor_post_uses_realtor_claude_checks(
     assert response.status_code == 200
     realtor_spy.assert_called_once()
     regular_spy.assert_not_called()
+
+
+def test_feed_flags_posts_by_verified_agents(client, auth_headers, userInfo):
+    email, _ = userInfo
+    client.post(
+        "/api/post",
+        json={"title": "Agent post", "description": "From a verified agent"},
+        headers=auth_headers,
+    )
+    # A second, regular user posts too.
+    client.post(
+        "/api/signup",
+        json={
+            "first_name": "Regular",
+            "last_name": "User",
+            "email": "regular@test.test",
+            "password": "1234567893939393939",
+        },
+    )
+    login = client.post(
+        "/api/login",
+        json={"email": "regular@test.test", "password": "1234567893939393939"},
+    )
+    regular = {"Authorization": f"Bearer {login.get_json()['access_token']}"}
+    client.post(
+        "/api/post",
+        json={"title": "Regular post", "description": "From a regular user"},
+        headers=regular,
+    )
+
+    agent = User.query.filter_by(email=email).first()
+    for status in ("pending", "verified"):
+        db.session.add(
+            RealtorAccount(
+                user_id=agent.id,
+                first_name="Test",
+                last_name="Agent",
+                license_number="01234567",
+                state="CA",
+                city="Los Angeles",
+                email=email,
+                status=status,
+            )
+        )
+        db.session.commit()
+        flags = {
+            p["title"]: p["author_is_agent"] for p in client.get("/api/post").get_json()
+        }
+        # Only a verified application earns the label; pending doesn't.
+        assert flags == {
+            "Agent post": status == "verified",
+            "Regular post": False,
+        }
+        RealtorAccount.query.delete()
+        db.session.commit()
