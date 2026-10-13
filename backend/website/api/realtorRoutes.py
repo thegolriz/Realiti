@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from website import db
+from website import db, limiter
 from website.models import RealtorAccount, User
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask import current_app
@@ -17,6 +17,16 @@ REQUIRED = ("email", "first_name", "last_name",
 
 def _confirm_serializer():
     return URLSafeTimedSerializer(current_app.config["SECRET_KEY"], salt=CONFIRM_SALT)
+
+
+def _send_confirmation(application):
+    # Shared by apply and resend. Each call signs a fresh token, so a resend
+    # also restarts the 24 hour window.
+    token = _confirm_serializer().dumps(
+        {"application_id": application.id, "email": application.email}
+    )
+    link = f"{os.getenv('FRONTEND_URL')}/realtor-verify/confirm?token={token}"
+    return send_verification_email(application.email, link)
 
 
 @realtorRoutes.route("/send_verification", methods=["POST"])
@@ -101,16 +111,40 @@ def get_realtor_info():
     )
     db.session.add(application)
     db.session.commit()
-    token = _confirm_serializer().dumps(
-        {"application_id": application.id, "email": email})
-    link = f"{os.getenv('FRONTEND_URL')}/realtor-verify/confirm?token={token}"
     response = {"message": "Application submitted. Check your email to confirm."}
-    if not send_verification_email(email, link):
+    if not _send_confirmation(application):
         response["warning"] = (
             "Your application was saved, but we couldn't send the confirmation "
             "email. Try resending it, or contact support@realiti.dev."
         )
     return jsonify(response), 201
+
+
+@realtorRoutes.route("/realtor/resend", methods=["POST"])
+@jwt_required()
+@limiter.limit("5 per hour")
+def resend_confirmation():
+    # Covers an expired link or a failed send. Without it, an email_pending
+    # application blocks reapplying (409) with no way to finish.
+    application = RealtorAccount.query.filter_by(
+        user_id=int(get_jwt_identity()), status="email_pending"
+    ).first()
+    if application is None:
+        return (
+            jsonify({"error": "You don't have an application waiting on email"}),
+            404,
+        )
+    if not _send_confirmation(application):
+        return (
+            jsonify(
+                {
+                    "error": "We couldn't send the confirmation email. Please try "
+                    "again later, or contact support@realiti.dev."
+                }
+            ),
+            502,
+        )
+    return jsonify({"message": "We sent a new confirmation link to your email."}), 200
 
 
 @realtorRoutes.route("/realtor/confirm", methods=["POST"])
