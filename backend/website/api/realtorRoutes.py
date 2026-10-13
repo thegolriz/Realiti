@@ -3,9 +3,10 @@ from website import db
 from website.models import RealtorAccount, User
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask import current_app
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import os
 from website.emailSender import send_verification_email
+from datetime import datetime, timezone
 CONFIRM_SALT = "realtor-email-confirm"
 
 realtorRoutes = Blueprint("realtorRoutes", __name__)
@@ -110,3 +111,60 @@ def get_realtor_info():
             "email. Try resending it, or contact support@realiti.dev."
         )
     return jsonify(response), 201
+
+
+@realtorRoutes.route("/realtor/confirm", methods=["POST"])
+def confirm_realtor():
+    # No login required: the signed token is the proof of inbox access, and the
+    # link may be opened on a device that isn't signed in.
+    data = request.get_json(silent=True)
+    if not data or not data.get("token"):
+        return jsonify({"error": "Missing token"}), 400
+    try:
+        payload = _confirm_serializer().loads(data["token"], max_age=86400)
+    # SignatureExpired subclasses BadSignature, so it has to be caught first.
+    except SignatureExpired:
+        return (
+            jsonify({"error": "This link has expired. Please request a new one."}),
+            400,
+        )
+    except BadSignature:
+        return jsonify({"error": "This link is invalid."}), 400
+
+    application = RealtorAccount.query.get(payload["application_id"])
+    if application is None:
+        return jsonify({"error": "This application no longer exists."}), 404
+    if application.email != payload["email"]:
+        return (
+            jsonify({"error": "This link no longer matches your application."}),
+            400,
+        )
+
+    if application.status == "rejected":
+        return (
+            jsonify(
+                {
+                    "error": "This application was rejected. Please submit a new "
+                    "one, or contact support@realiti.dev."
+                }
+            ),
+            400,
+        )
+    # Already confirmed: a second click
+    # isn't an error, so answer success without changing anything.
+    if application.status == "pending":
+        return (
+            jsonify(
+                {"message": "Your email is already confirmed and under review."}),
+            200,
+        )
+    if application.status == "verified":
+        return jsonify({"message": "Your account is already verified."}), 200
+
+    application.status = "pending"
+    application.email_confirmed_at = datetime.now(tz=timezone.utc)
+    db.session.commit()
+    return (
+        jsonify({"message": "Email confirmed. Your application is now under review."}),
+        200,
+    )
