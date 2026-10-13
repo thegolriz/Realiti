@@ -104,6 +104,7 @@ export const getDocumentUrl = id => api.get(`/admin/verify_posts/${id}/document-
 export const getTags = () => api.get('/tags');
 export const applyRealtor = data => api.post('/send_verification', data);
 export const confirmRealtor = token => api.post('/realtor/confirm', { token });
+export const resendRealtor = () => api.post('/realtor/resend', {});
 export const getRealtorApplications = () => api.get('/admin/realtor-applications');
 export const approveRealtorApplication = id =>
   api.post(`/admin/realtor-applications/${id}/approve`, {});

@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import ReleaseNotes from './pages/ReleaseNotes';
 import RealtorVerify from './pages/RealtorVerify';
+import RealtorConfirm from './pages/RealtorConfirm';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 
@@ -50,6 +51,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Public: the email link may be opened on a device that isn't signed in. */}
+          <Route path="/realtor-verify/confirm" element={<RealtorConfirm />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route

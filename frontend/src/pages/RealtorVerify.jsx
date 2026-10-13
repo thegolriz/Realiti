@@ -15,7 +15,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
 import NavBar from '../components/NavBar.jsx';
-import { getAccount, applyRealtor } from '../api/api.js';
+import { getAccount, applyRealtor, resendRealtor } from '../api/api.js';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import Notification, {
@@ -36,6 +36,7 @@ export default function RealtorVerify(props) {
   const [submitting, setSubmitting] = useState(false);
   // Set on a successful apply; swaps the form for the "check your email" view.
   const [submitted, setSubmitted] = useState(null);
+  const [resending, setResending] = useState(false);
   const submittingRef = useRef(false);
 
   useEffect(() => {
@@ -93,10 +94,30 @@ export default function RealtorVerify(props) {
       })
       .catch(err => {
         const message = getServerError(err);
+        // An unconfirmed application already exists (e.g. after a reload).
+        // Show the post-submit view so they can resend instead of being stuck.
+        if (err?.response?.status === 409 && message.includes('Check your email')) {
+          setSubmitted({ warning: message });
+          return;
+        }
         notify(message, serverErrorSeverity(message));
         submittingRef.current = false;
         setSubmitting(false);
       });
+  };
+
+  const handleResend = () => {
+    setResending(true);
+    resendRealtor()
+      .then(res => {
+        notify(res.data.message, 'success');
+        setSubmitted({ warning: null });
+      })
+      .catch(err => {
+        const message = getServerError(err);
+        notify(message, serverErrorSeverity(message));
+      })
+      .finally(() => setResending(false));
   };
 
   return (
@@ -129,6 +150,13 @@ export default function RealtorVerify(props) {
                   </Typography>
                 </>
               )}
+              <Button
+                variant={submitted.warning ? 'contained' : 'outlined'}
+                onClick={handleResend}
+                disabled={resending}
+              >
+                {resending ? 'Sending...' : 'Resend confirmation email'}
+              </Button>
             </Stack>
           ) : (
             <>
