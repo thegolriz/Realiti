@@ -279,3 +279,48 @@ def test_confirm_rejects_token_for_changed_email(client, auth_headers, monkeypat
     resp = client.post(CONFIRM_URL, json={"token": token})
     assert resp.status_code == 400
     assert RealtorAccount.query.one().status == "email_pending"
+
+
+RESEND_URL = "/api/realtor/resend"
+
+
+def test_resend_sends_a_new_working_link(client, auth_headers, monkeypatch):
+    _apply_and_get_token(client, auth_headers, monkeypatch)
+
+    sent = []
+    monkeypatch.setattr(
+        "website.api.realtorRoutes.send_verification_email",
+        lambda to, link: sent.append((to, link)) or True,
+    )
+    resp = client.post(RESEND_URL, headers=auth_headers)
+    assert resp.status_code == 200
+
+    to, link = sent[0]
+    assert to == "test@test.test"
+    token = parse_qs(urlparse(link).query)["token"][0]
+    assert client.post(CONFIRM_URL, json={"token": token}).status_code == 200
+    assert RealtorAccount.query.one().status == "pending"
+
+
+def test_resend_requires_login(client):
+    assert client.post(RESEND_URL).status_code == 401
+
+
+def test_resend_without_application(client, auth_headers):
+    assert client.post(RESEND_URL, headers=auth_headers).status_code == 404
+
+
+def test_resend_after_confirm_has_nothing_to_send(client, auth_headers, monkeypatch):
+    token = _apply_and_get_token(client, auth_headers, monkeypatch)
+    client.post(CONFIRM_URL, json={"token": token})
+    assert client.post(RESEND_URL, headers=auth_headers).status_code == 404
+
+
+def test_resend_reports_failed_send(client, auth_headers, monkeypatch):
+    _apply_and_get_token(client, auth_headers, monkeypatch)
+    monkeypatch.setattr(
+        "website.api.realtorRoutes.send_verification_email", lambda *a, **k: False
+    )
+    resp = client.post(RESEND_URL, headers=auth_headers)
+    assert resp.status_code == 502
+    assert RealtorAccount.query.one().status == "email_pending"
