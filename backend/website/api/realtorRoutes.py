@@ -2,11 +2,20 @@ from flask import Blueprint, jsonify, request
 from website import db
 from website.models import RealtorAccount, User
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer
+import os
+from website.emailSender import send_verification_email
+CONFIRM_SALT = "realtor-email-confirm"
 
 realtorRoutes = Blueprint("realtorRoutes", __name__)
 
 REQUIRED = ("email", "first_name", "last_name",
             "license_number", "state", "city")
+
+
+def _confirm_serializer():
+    return URLSafeTimedSerializer(current_app.config["SECRET_KEY"], salt=CONFIRM_SALT)
 
 
 @realtorRoutes.route("/send_verification", methods=["POST"])
@@ -91,5 +100,13 @@ def get_realtor_info():
     )
     db.session.add(application)
     db.session.commit()
-    # TODO: send the confirmation email.
-    return jsonify({"message": "Application submitted. Check your email."}), 201
+    token = _confirm_serializer().dumps(
+        {"application_id": application.id, "email": email})
+    link = f"{os.getenv('FRONTEND_URL')}/realtor-verify/confirm?token={token}"
+    response = {"message": "Application submitted. Check your email to confirm."}
+    if not send_verification_email(email, link):
+        response["warning"] = (
+            "Your application was saved, but we couldn't send the confirmation "
+            "email. Try resending it, or contact support@realiti.dev."
+        )
+    return jsonify(response), 201
