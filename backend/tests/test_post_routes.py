@@ -3,7 +3,7 @@
 from unittest import mock
 
 from website import db
-from website.models import Realtor, User
+from website.models import RealtorAccount, User
 
 
 def test_regex_flagged_post_returns_400_and_skips_claude(
@@ -49,7 +49,16 @@ def test_realtor_post_uses_realtor_claude_checks(
     email, _ = userInfo
     user = User.query.filter_by(email=email).first()
     db.session.add(
-        Realtor(name="Test Realtor", state="CA", is_verified=True, user_id=user.id)
+        RealtorAccount(
+            user_id=user.id,
+            first_name="Test",
+            last_name="Realtor",
+            license_number="01234567",
+            state="CA",
+            city="Los Angeles",
+            email=email,
+            status="verified",
+        )
     )
     db.session.commit()
 

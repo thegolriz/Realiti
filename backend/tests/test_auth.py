@@ -7,6 +7,7 @@ from website.models import (
     PostLikes,
     PostTags,
     Realtor,
+    RealtorAccount,
     Replies,
     Report,
     Tag,
@@ -312,7 +313,8 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
     db.session.add(child)
 
     # A tag on A's post, a report against A's post (by B), a report filed by
-    # A on B's post, and a realtor entry A submitted and claimed.
+    # A on B's post, a realtor entry A submitted and claimed, and A's
+    # verification application.
     tag = Tag(tagName="cascade-test-tag")
     db.session.add(tag)
     db.session.flush()
@@ -322,9 +324,20 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
     db.session.add(Report(post_id=post_b, reporter_id=a_id, reason="by a"))
     realtor = Realtor(name="Cascade Realtor", state="CA", user_id=a_id, added_by=a_id)
     db.session.add(realtor)
+    application = RealtorAccount(
+        user_id=a_id,
+        first_name="Cascade",
+        last_name="Agent",
+        license_number="01234567",
+        state="CA",
+        city="Los Angeles",
+        email="a@test.test",
+    )
+    db.session.add(application)
     db.session.commit()
     child_id = child.id
     realtor_id = realtor.id
+    application_id = application.id
 
     resp = client.delete(
         "/api/account", json={"password": a_password}, headers=auth_headers
@@ -345,6 +358,9 @@ def test_delete_account_cascades_everything(client, auth_headers, userInfo, post
     assert Replies.query.filter_by(userReplied=a_id).count() == 0
     assert PostLikes.query.filter_by(userSentLike=a_id).count() == 0
     assert Report.query.filter_by(reporter_id=a_id).count() == 0
+
+    # A's private verification application is deleted, not detached.
+    assert RealtorAccount.query.get(application_id) is None
 
     # Shared rows survive with A's references detached.
     assert Tag.query.get(tag_id) is not None
