@@ -229,6 +229,13 @@ def post_get_api():
     if author:
         query = query.filter_by(user_id=author)
     postInfo = query.order_by(Post.posted_at.desc()).all()
+    # One query for every verified agent, instead of one per post.
+    agent_ids = {
+        row.user_id
+        for row in RealtorAccount.query.filter_by(status="verified").with_entities(
+            RealtorAccount.user_id
+        )
+    }
     postList = []
     for post in postInfo:
         liked = False
@@ -267,6 +274,7 @@ def post_get_api():
                 "experience": post.experience,
                 "tags": tags,
                 "verification_status": post.verification_status,
+                "author_is_agent": post.user_id in agent_ids,
             }
         )
     return jsonify(postList)
