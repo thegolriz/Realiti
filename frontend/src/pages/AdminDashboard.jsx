@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Button, Stack, Divider, Card, CardContent, Link } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  Stack,
+  Divider,
+  Card,
+  CardContent,
+  Link,
+  TextField,
+} from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppTheme from '../shared-theme/AppTheme';
 import NavBar from '../components/NavBar.jsx';
@@ -18,12 +28,18 @@ import {
   verifyPost,
   rejectVerification,
   getDocumentUrl,
+  getRealtorApplications,
+  approveRealtorApplication,
+  rejectRealtorApplication,
 } from '../api/api';
 
 export default function AdminDashboard(props) {
   const [reviewPosts, setReviewPosts] = useState([]);
   const [reports, setReports] = useState([]);
   const [pendingVerification, setPendingVerification] = useState([]);
+  const [applications, setApplications] = useState([]);
+  // Optional reject reason per application, keyed by id.
+  const [reasons, setReasons] = useState({});
   const { notification, notify, closeNotification } = useNotification();
 
   const showError = err => {
@@ -40,6 +56,9 @@ export default function AdminDashboard(props) {
       .catch(showError);
     getPendingVerification()
       .then(res => setPendingVerification(res.data))
+      .catch(showError);
+    getRealtorApplications()
+      .then(res => setApplications(res.data))
       .catch(showError);
   };
 
@@ -149,6 +168,67 @@ export default function AdminDashboard(props) {
                     variant="outlined"
                     color="error"
                     onClick={() => runAction(rejectVerification(post.id), 'Post rejected.')}
+                  >
+                    Reject
+                  </Button>
+                </Stack>
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Real estate agent applications ({applications.length})
+        </Typography>
+        <Stack spacing={2} sx={{ mb: 4 }}>
+          {applications.length === 0 && (
+            <Typography color="text.secondary">No applications waiting.</Typography>
+          )}
+          {applications.map(application => (
+            <Card key={application.id} variant="outlined">
+              <CardContent>
+                <Typography sx={{ fontWeight: 600 }}>
+                  {application.first_name} {application.last_name}
+                </Typography>
+                {/* Side by side with the license name, for the lookup. */}
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Account name: {application.account_name ?? 'Unknown'}
+                </Typography>
+                <Typography variant="body2">
+                  License {application.license_number} · {application.state} · {application.city}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {application.email} · submitted{' '}
+                  {new Date(application.submitted_at).toLocaleDateString()}
+                </Typography>
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Reason, if rejecting (optional)"
+                  value={reasons[application.id] ?? ''}
+                  onChange={e => setReasons({ ...reasons, [application.id]: e.target.value })}
+                  sx={{ mt: 2 }}
+                />
+                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      runAction(approveRealtorApplication(application.id), 'Application approved.')
+                    }
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() =>
+                      runAction(
+                        rejectRealtorApplication(application.id, reasons[application.id]),
+                        'Application rejected.'
+                      )
+                    }
                   >
                     Reject
                   </Button>
