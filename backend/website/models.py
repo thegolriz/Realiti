@@ -31,6 +31,26 @@ class Realtor(db.Model):
     )
 
 
+class RealtorAccount(db.Model):
+    # Private directory to verify and allow realtors or real estate agents
+    # to verify they are one and have the account reflect that.
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    first_name = db.Column(db.Text, nullable=False)
+    last_name = db.Column(db.Text, nullable=False)
+    license_number = db.Column(db.String(30), nullable=False)
+    state = db.Column(db.Text, nullable=False)
+    city = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, nullable=False)
+    # email_pending -> pending -> verified | rejected
+    status = db.Column(db.String, default="email_pending", nullable=False)
+    # Set by the confirm and approve routes, not on insert.
+    email_confirmed_at = db.Column(db.DateTime, nullable=True)
+    submitted_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=timezone.utc))
+    verified_at = db.Column(db.DateTime, nullable=True)
+    rejection_reason = db.Column(db.Text, nullable=True)
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.relationship("User", backref="posts")

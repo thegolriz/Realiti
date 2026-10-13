@@ -1,6 +1,6 @@
 # Realiti Terms of Service
 
-Last updated: October 12, 2026
+Last updated: October 13, 2026
 
 ## 1. Agreement and eligibility
 
@@ -32,7 +32,15 @@ Realiti is in a testing period. Features may change or break, and content may be
 
 If you work in real estate, do not misstate your license, credentials or results, and do not make false claims about other professionals.
 
-**The professional directory and verification.** Users can add a real estate professional to our directory by name and the state they work in. Add only real professionals, and only accurate names and states. A professional can ask to be verified by submitting documents for our administrator to review. Only request verification for yourself, and only submit genuine documents. We may decline, delay or revoke verification at our discretion.
+**Real estate agent verification.** If you are a licensed real estate agent or broker, you can apply to be verified. You give your name exactly as it appears on your license, your license number, the issuing state and your city, then confirm the email on your account. Our administrator checks your license against your state's public licensing records. Only apply for yourself, and only with accurate information. We may decline, delay or revoke verification at our discretion, including if your license lapses or your information turns out to be inaccurate.
+
+**Extra rules for verified agents.** Realiti is not an advertising space. Posts by verified agents must not:
+
+- Advertise listings or specific properties, including addresses, prices, square footage or availability.
+- Name clients or other users.
+- Name other agents or brokerages, including your own, whether the mention is positive, negative or neutral.
+
+Verified agents may invite people to an open house as a social meetup, thank people for feedback, and invite anyone interested in working together to get in touch. Our automated checks apply these rules to verified agents' posts.
 
 **Uploaded documents.** Only upload documents you have the right to share. Remove or cover other people's personal information first.
 
@@ -59,7 +67,7 @@ These rules apply to replies as well as posts.
 
 **Reporting.** Any signed-in user can report a post with the report button, giving a reason and optionally a link to evidence. To report a reply, email support@realiti.dev. We review reports in good faith but cannot promise a response time or outcome. If a report is upheld, the post is removed from public view.
 
-**If you are a professional named in a post.** Use the report button, or email support@realiti.dev with a link to the post and why you believe it breaks these Terms (for example, it states something false as fact, shares private information, harasses you, or comes from someone who never dealt with you). We will review it. We do not remove a post only because it is critical, if it is truthful and based on the author's real experience. We do not mediate the underlying dispute. Realiti does not offer public responses to posts or a formal appeals process. To correct or remove your directory entry, email support@realiti.dev.
+**If you are a professional named in a post.** Use the report button, or email support@realiti.dev with a link to the post and why you believe it breaks these Terms (for example, it states something false as fact, shares private information, harasses you, or comes from someone who never dealt with you). We will review it. We do not remove a post only because it is critical, if it is truthful and based on the author's real experience. We do not mediate the underlying dispute. Realiti does not offer public responses to posts or a formal appeals process.
 
 **Removal notices.** We may remove content without notifying the author.
 
@@ -69,7 +77,7 @@ These rules apply to replies as well as posts.
 
 Realiti is provided "as is" and "as available," with no warranties of any kind, to the extent the law allows. We do not guarantee that the service will be uninterrupted, secure or error-free.
 
-Content on Realiti is not professional, legal or financial advice. We do not check whether what users post is true, and we do not vouch for any professional. A "verified" label means only that our administrator reviewed a document attached to a post and judged that it supports the post. It does not mean the post is accurate or that anyone is licensed or qualified. A verified professional label means only that our administrator reviewed the documents that professional submitted and judged that they support the directory entry. It is not an endorsement of their work.
+Content on Realiti is not professional, legal or financial advice. We do not check whether what users post is true, and we do not vouch for any professional. A "verified" label means only that our administrator reviewed a document attached to a post and judged that it supports the post. It does not mean the post is accurate or that anyone is licensed or qualified. A "Real estate agent" label means only that, when our administrator reviewed it, the license number matched a state licensing record under the name given. We do not keep checking license status afterward, and the label is not an endorsement of the agent's work.
 
 ## 7. Limit of liability
 

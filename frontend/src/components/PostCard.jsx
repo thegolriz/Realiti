@@ -23,6 +23,7 @@ const PostCard = ({
   experience,
   tags,
   verificationStatus,
+  authorIsAgent,
 }) => {
   const [replies, setReplies] = useState([]);
 
@@ -59,6 +60,9 @@ const PostCard = ({
           <ProfileAvatar userId={userId} userName={userName ?? 'No user attached'} />
           <Box>
             <Typography>{userName ?? 'username'}</Typography>
+            {authorIsAgent && (
+              <Chip label="Real estate agent" size="small" color="primary" variant="outlined" />
+            )}
             <Typography>{postBody}</Typography>
           </Box>
         </Stack>

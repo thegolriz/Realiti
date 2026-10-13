@@ -86,6 +86,8 @@ const WARNING_HINTS = [
   'empty',
   'cannot be',
   'guideline',
+  'expired',
+  'must match',
 ];
 
 export function serverErrorSeverity(message) {

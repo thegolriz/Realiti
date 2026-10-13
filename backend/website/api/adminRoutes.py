@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, Report, User
+from website.models import Post, RealtorAccount, Report, User
 
 from .s3Routes import create_presigned_url
 
@@ -49,6 +49,28 @@ def _serialize_post(post):
         "s3_url": post.s3_url,
         "review_status": post.review_status,
         "review_reason": post.review_reason,
+    }
+
+
+def _iso(dt):
+    return dt.isoformat() if dt else None
+
+
+def _serialize_application(application):
+    user = User.query.get(application.user_id)
+    return {
+        "id": application.id,
+        "user_id": application.user_id,
+        "account_name": f"{user.first_name} {user.last_name}" if user else None,
+        "first_name": application.first_name,
+        "last_name": application.last_name,
+        "license_number": application.license_number,
+        "state": application.state,
+        "city": application.city,
+        "email": application.email,
+        "status": application.status,
+        "submitted_at": _iso(application.submitted_at),
+        "email_confirmed_at": _iso(application.email_confirmed_at),
     }
 
 
@@ -172,3 +194,63 @@ def resolve_report(report_id):
             post.review_status = "removed"
     db.session.commit()
     return jsonify({"message": f"Report {report.status}"}), 200
+
+
+@adminRoutes.route("/admin/realtor-applications", methods=["GET"])
+@admin_required
+def show_realtor_verification():
+    apps = (
+        RealtorAccount.query.filter_by(status="pending")
+        .order_by(RealtorAccount.submitted_at)
+        .all()
+    )
+    return jsonify([_serialize_application(a) for a in apps]), 200
+
+
+@adminRoutes.route(
+    "/admin/realtor-applications/<int:application_id>/approve", methods=["POST"]
+)
+@admin_required
+def approve_realtor_application(application_id):
+    application = RealtorAccount.query.get(application_id)
+    if not application:
+        return jsonify({"error": "Application does not exist"}), 404
+    # Only confirmed applications; never one still waiting on its email or
+    # already decided.
+    if application.status != "pending":
+        return jsonify({"error": "Only pending applications can be approved"}), 400
+    # Apply only blocks on verified licenses, so two pending applications can
+    # share one. Approving the second would give two accounts the badge.
+    claimed = RealtorAccount.query.filter(
+        RealtorAccount.id != application.id,
+        RealtorAccount.license_number == application.license_number,
+        RealtorAccount.state == application.state,
+        RealtorAccount.status == "verified",
+    ).first()
+    if claimed:
+        return (
+            jsonify({"error": "This license is already verified on another account"}),
+            409,
+        )
+    application.status = "verified"
+    application.verified_at = datetime.now(tz=timezone.utc)
+    db.session.commit()
+    return jsonify({"message": "Application approved"}), 200
+
+
+@adminRoutes.route(
+    "/admin/realtor-applications/<int:application_id>/reject", methods=["POST"]
+)
+@admin_required
+def reject_realtor_application(application_id):
+    data = request.get_json(silent=True) or {}
+    application = RealtorAccount.query.get(application_id)
+    if not application:
+        return jsonify({"error": "Application does not exist"}), 404
+    if application.status != "pending":
+        return jsonify({"error": "Only pending applications can be rejected"}), 400
+    application.status = "rejected"
+    # Kept so "why was I rejected?" has an answer later.
+    application.rejection_reason = data.get("reason")
+    db.session.commit()
+    return jsonify({"message": "Application rejected"}), 200

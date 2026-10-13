@@ -16,6 +16,7 @@ from website.models import (
     PostLikes,
     PostTags,
     Realtor,
+    RealtorAccount,
     Replies,
     Report,
     User,
@@ -159,6 +160,7 @@ def get_account():
             {
                 "id": user.id,
                 "first_name": user.first_name,
+                "last_name": user.last_name,
                 "email": user.email,
                 "is_admin": user.is_admin,
             }
@@ -259,6 +261,10 @@ def delete_account():
         Realtor.query.filter_by(added_by=uid).update(
             {Realtor.added_by: None}, synchronize_session=False
         )
+
+        # Verification applications are private (license number, contact
+        # email), so they go with the account.
+        RealtorAccount.query.filter_by(user_id=uid).delete(synchronize_session=False)
 
         # Finally the user's posts, then the user record itself.
         Post.query.filter_by(user_id=uid).delete(synchronize_session=False)

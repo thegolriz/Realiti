@@ -102,4 +102,12 @@ export const verifyPost = id => api.post(`/admin/verify_posts/${id}/verify`, {})
 export const rejectVerification = id => api.post(`/admin/verify_posts/${id}/reject`, {});
 export const getDocumentUrl = id => api.get(`/admin/verify_posts/${id}/document-url`);
 export const getTags = () => api.get('/tags');
+export const applyRealtor = data => api.post('/send_verification', data);
+export const confirmRealtor = token => api.post('/realtor/confirm', { token });
+export const resendRealtor = () => api.post('/realtor/resend', {});
+export const getRealtorApplications = () => api.get('/admin/realtor-applications');
+export const approveRealtorApplication = id =>
+  api.post(`/admin/realtor-applications/${id}/approve`, {});
+export const rejectRealtorApplication = (id, reason) =>
+  api.post(`/admin/realtor-applications/${id}/reject`, { reason });
 export default api;

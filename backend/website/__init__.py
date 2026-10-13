@@ -82,6 +82,7 @@ def create_app():
     from website.api.postDislike import postDislike
     from website.api.postLike import postLike
     from website.api.postRoutes import postRoutes  # noqa: F401
+    from website.api.realtorRoutes import realtorRoutes
     from website.api.repliesRoutes import repliesRoutes
     from website.api.reportRoutes import reportRoutes
     from website.api.routes import routes  # noqa: F401
@@ -96,12 +97,14 @@ def create_app():
     app.register_blueprint(repliesRoutes, url_prefix="/api")
     app.register_blueprint(adminRoutes, url_prefix="/api")
     app.register_blueprint(reportRoutes, url_prefix="/api")
+    app.register_blueprint(realtorRoutes, url_prefix="/api")
     from .models import (  # noqa: F401
         Post,
         PostDislikes,
         PostLikes,
         PostTags,
         Realtor,
+        RealtorAccount,
         Replies,
         Report,
         Tag,

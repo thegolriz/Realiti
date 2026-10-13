@@ -36,6 +36,15 @@ def _offline_hibp(monkeypatch):
     monkeypatch.setattr("website.api.auth_routes.hashMode", lambda password: "clean")
 
 
+@pytest.fixture(autouse=True)
+def _offline_email(monkeypatch):
+    # Keep the realtor apply route from sending real SES email. Patched where
+    # the route looks it up, since it imports the function by name.
+    monkeypatch.setattr(
+        "website.api.realtorRoutes.send_verification_email", lambda *a, **k: True
+    )
+
+
 @pytest.fixture
 def app(tmp_path):
     os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{tmp_path / 'test.db'}"
