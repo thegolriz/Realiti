@@ -202,8 +202,7 @@ def check_media_matches_description(s3_object, description):
                 "type": "text",
                 "text": (
                     "Decide whether the attached media supports this "
-                    f"description:\n<description>\n{
-                        description}\n</description>"
+                    f"description:\n<description>\n{description}\n</description>"
                 ),
             },
         ]

@@ -229,8 +229,7 @@ def approve_realtor_application(application_id):
     ).first()
     if claimed:
         return (
-            jsonify(
-                {"error": "This license is already verified on another account"}),
+            jsonify({"error": "This license is already verified on another account"}),
             409,
         )
     application.status = "verified"

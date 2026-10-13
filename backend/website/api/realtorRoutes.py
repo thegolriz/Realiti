@@ -1,18 +1,19 @@
-from flask import Blueprint, jsonify, request
-from website import db, limiter
-from website.models import RealtorAccount, User
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask import current_app
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import os
-from website.emailSender import send_verification_email
 from datetime import datetime, timezone
+
+from flask import Blueprint, current_app, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+
+from website import db, limiter
+from website.emailSender import send_verification_email
+from website.models import RealtorAccount, User
+
 CONFIRM_SALT = "realtor-email-confirm"
 
 realtorRoutes = Blueprint("realtorRoutes", __name__)
 
-REQUIRED = ("email", "first_name", "last_name",
-            "license_number", "state", "city")
+REQUIRED = ("email", "first_name", "last_name", "license_number", "state", "city")
 
 
 def _confirm_serializer():
@@ -64,7 +65,15 @@ def get_realtor_info():
 
     license_number = fields["license_number"].upper()
     if len(license_number) > 30:
-        return jsonify({"error": "License should be 30 characters or less, if your license is longer than 30 characters, please contact support@realiti.dev"}), 400
+        return (
+            jsonify(
+                {
+                    "error": "License numbers can be at most 30 characters. If "
+                    "yours is longer, please contact support@realiti.dev"
+                }
+            ),
+            400,
+        )
 
     state = fields["state"].upper()
     city = fields["city"]
@@ -188,8 +197,7 @@ def confirm_realtor():
     # isn't an error, so answer success without changing anything.
     if application.status == "pending":
         return (
-            jsonify(
-                {"message": "Your email is already confirmed and under review."}),
+            jsonify({"message": "Your email is already confirmed and under review."}),
             200,
         )
     if application.status == "verified":
