@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from website import db
-from website.models import Post, PostDislikes, PostLikes, PostTags, Realtor, Tag
+from website.models import Post, PostDislikes, PostLikes, PostTags, RealtorAccount, Tag
 
 from . import claudeModeration, claudeRealtorModeration
 from .claudeModeration import DECISION_BLOCK, DECISION_REVIEW
@@ -153,7 +153,7 @@ def post_api():
         return jsonify({"error": "This post contains inappropriate content"}), 400
     # 3. Claude layer: text, then media, then media-vs-description.
     verdict = None
-    realtor = Realtor.query.filter_by(user_id=user_id, is_verified=True).first()
+    realtor = RealtorAccount.query.filter_by(user_id=user_id, status="verified").first()
     if realtor is not None:
         verdict = claudeRealtorModeration.run_claude_checks(title, description, s3_obj)
     else:
