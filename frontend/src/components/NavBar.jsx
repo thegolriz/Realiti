@@ -22,7 +22,7 @@ const MENU_ITEMS = [
   { label: 'About', to: '/about' },
   { label: 'Guidelines', to: '/guidelines' },
   { label: 'Contact', to: '/contact' },
-  { label: 'Are you a Realtor?', to: '/realtor-verify' },
+  { label: 'Are you a real estate agent?', to: '/realtor-verify' },
   { label: 'Release Notes', to: '/releasenotes' },
   { label: 'Terms of Service', to: '/terms' },
   { label: 'Privacy Policy', to: '/privacy' },
