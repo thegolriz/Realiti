@@ -51,14 +51,14 @@ const SECTIONS = [
   },
   {
     id: 'realtor-specific',
-    title: 'Realtor-specific rules',
-    body: 'This is not an advertising space. Realtors can share experiences, tips, and invitations to connect, but the following rules apply in addition to everything above:',
+    title: 'Rules for verified real estate agents',
+    body: 'This is not an advertising space. Agents can share experiences, tips, and invitations to connect, but the following rules apply in addition to everything above:',
     items: [
       'No listings or property-specific advertising: no addresses, prices, square footage, or "I have a listing" posts',
       'Open house invitations are allowed as a social invitation to meet',
       'Inviting people to reach out to you is allowed, for example referencing positive feedback and sharing how to contact you',
-      'No naming other users: they haven’t agreed to the same visibility you have as a realtor',
-      'No naming other realtors or brokerages, including your own: keeps things professional and avoids reputation disputes',
+      'No naming other users: they haven’t agreed to the same visibility you have as an agent',
+      'No naming other agents or brokerages, including your own: keeps things professional and avoids reputation disputes',
       'Describe what happened without naming who it was with; the situation is fair game, the name isn’t',
       'Sharing a link or contact info in response to someone’s interest is allowed',
     ],
@@ -77,7 +77,7 @@ export default function Guidelines(props) {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Draft, these guidelines are still being finalized and may change.
           <br />
-          <Link href="#realtor-specific">Realtor specific guidelines here</Link>
+          <Link href="#realtor-specific">Guidelines for real estate agents here</Link>
         </Typography>
 
         {SECTIONS.map(section => (
