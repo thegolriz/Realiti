@@ -44,7 +44,7 @@ function App() {
             }
           />
           <Route
-            path="/realtor-verify"
+            path="/agent-verify"
             element={
               <ProtectedRoute>
                 <RealtorVerify />
@@ -52,7 +52,7 @@ function App() {
             }
           />
           {/* Public: the email link may be opened on a device that isn't signed in. */}
-          <Route path="/realtor-verify/confirm" element={<RealtorConfirm />} />
+          <Route path="/agent-verify/confirm" element={<RealtorConfirm />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route

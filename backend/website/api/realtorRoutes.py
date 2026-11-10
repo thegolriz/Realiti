@@ -26,7 +26,7 @@ def _send_confirmation(application):
     token = _confirm_serializer().dumps(
         {"application_id": application.id, "email": application.email}
     )
-    link = f"{os.getenv('FRONTEND_URL')}/realtor-verify/confirm?token={token}"
+    link = f"{os.getenv('FRONTEND_URL')}/agent-verify/confirm?token={token}"
     return send_verification_email(application.email, link)
 
 

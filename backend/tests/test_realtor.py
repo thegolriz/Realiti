@@ -153,7 +153,7 @@ def test_apply_sends_confirmation_email(client, auth_headers, monkeypatch):
 
     to, link = sent[0]
     assert to == "test@test.test"
-    assert "/realtor-verify/confirm?token=" in link
+    assert "/agent-verify/confirm?token=" in link
 
 
 def test_apply_failed_email_still_saves_with_warning(client, auth_headers, monkeypatch):
