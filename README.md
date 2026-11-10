@@ -1,12 +1,12 @@
 # Realiti
 
-A social hub where consumers and realtors discuss real estate experiences on even ground. No advertising and no aggregate realtor scores, just honest discussions backed by optional supporting evidence. Posts can carry an optional experience tag (bad to great) and be liked or disliked.
+A social hub where consumers and real estate agents discuss real estate experiences on even ground. No advertising and no aggregate agent scores, just honest discussions backed by optional supporting evidence. Posts can carry an optional experience tag (bad to great) and be liked or disliked.
 
 Live at [realiti.dev](https://realiti.dev).
 
 ## What It Does
 
-Users can share their experiences with realtors, supported by uploaded images or documents. Both consumers and realtors can post, but realtors cannot identify private clients. Content is screened through a multi-layer moderation pipeline before going live.
+Users can share their experiences with real estate agents, supported by uploaded images or documents. Both consumers and real estate agents can post, but agents cannot identify private clients. Content is screened through a multi-layer moderation pipeline before going live.
 
 ## Tech Stack
 
@@ -31,7 +31,7 @@ Users can share their experiences with realtors, supported by uploaded images or
 1. **Pre-processing**: Regex-based filtering for profanity, character substitution, and obfuscation
 2. **AI Screening**: AWS Rekognition checks images for inappropriate content as a binary pass/fail; a failing image is deleted from S3.
     The Claude API then checks the title, description, and image/document, each returning allow, block, or needs review.
-3. **Community Correction**: Realtors and other users can publicly reply to posts and report them, providing a self-correcting layer.
+3. **Community Correction**: Real estate agents and other users can publicly reply to posts and report them, providing a self-correcting layer.
 
 A block from either layer rejects the post with a 400. Edge cases Claude flags as "needs review" are held, hidden from the public feed, and sent to the admin dashboard for a final decision.
 

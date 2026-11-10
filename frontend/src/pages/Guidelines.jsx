@@ -50,7 +50,7 @@ const SECTIONS = [
     ],
   },
   {
-    id: 'realtor-specific',
+    id: 'agent-specific',
     title: 'Rules for verified real estate agents',
     body: 'This is not an advertising space. Agents can share experiences, tips, and invitations to connect, but the following rules apply in addition to everything above:',
     items: [
@@ -77,7 +77,7 @@ export default function Guidelines(props) {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Draft, these guidelines are still being finalized and may change.
           <br />
-          <Link href="#realtor-specific">Guidelines for real estate agents here</Link>
+          <Link href="#agent-specific">Guidelines for real estate agents here</Link>
         </Typography>
 
         {SECTIONS.map(section => (

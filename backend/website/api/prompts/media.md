@@ -11,7 +11,7 @@ reason. Reserve "needs_review" for genuine uncertainty.
 
 Judge the media on its content:
 - Does the media look like nonsense (e.g. a random pic of a pipe, or an incoherent document)?
-- Does the media relate to a consumer or realtor posting about an experience relating to realty?
+- Does the media relate to a consumer or real estate agent posting about an experience relating to realty?
 
 If the media looks like nonsense or is off-topic for a realty posting but is not itself a guideline violation, return "needs_review" rather than "block": it is not unsafe, just unclear, so leave it for a human to decide. Reserve "block" for the guideline violations above.
 

@@ -7,7 +7,7 @@ import NavBar from '../components/NavBar.jsx';
 const SECTIONS = [
   {
     title: 'What Realiti is',
-    body: 'Realiti is a place to share what actually happened when you worked with a realtor, and to read what happened to everyone else. Listings and agent profiles already live on a dozen sites. What is missing is the part people only tell their friends: who returned calls, who pushed a bad deal, who went out of their way, and who quietly cost someone thousands.',
+    body: 'Realiti is a place to share what actually happened when you worked with a real estate agent, and to read what happened to everyone else. Listings and agent profiles already live on a dozen sites. What is missing is the part people only tell their friends: who returned calls, who pushed a bad deal, who went out of their way, and who quietly cost someone thousands.',
     items: [],
   },
   {
@@ -38,9 +38,7 @@ const SECTIONS = [
     title: 'Coming soon',
     body: 'Realiti is in open testing, and the pieces that make an account stick to the person it describes are still being built:',
     items: [
-      'Tagging a post to a named realtor and the state they work in, so accounts collect in one place instead of disappearing into a feed',
-      'Realtor profiles, and a way for realtors to claim their own and respond to what is written about them',
-      'Verification badges on posts whose supporting proof has been checked',
+      'Tagging a post to a named real estate agent and the state they work in, so accounts collect in one place instead of disappearing into a feed',
     ],
   },
   {
